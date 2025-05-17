@@ -1,82 +1,66 @@
-import { FC, useState, useEffect } from "react";
-import { VisuallyHidden } from "@react-aria/visually-hidden";
-import { SwitchProps, useSwitch } from "@heroui/switch";
-import clsx from "clsx";
+"use client";
+
+import {
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@heroui/react";
+import { Sun, Moon, Laptop } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { useThemeStore } from "@/store/useThemeStore";
 import { useTheme } from "@heroui/use-theme";
 
-import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
+export const ThemeDropdown = () => {
+  const { setTheme: setGlobalTheme, theme } = useThemeStore();
+  const { setTheme } = useTheme();
+  const [selected, setSelected] = useState<"light" | "dark" | "system">(theme);
 
-export interface ThemeSwitchProps {
-  className?: string;
-  classNames?: SwitchProps["classNames"];
-}
-
-export const ThemeSwitch: FC<ThemeSwitchProps> = ({
-  className,
-  classNames,
-}) => {
-  const [isMounted, setIsMounted] = useState(false);
-
-  const { theme, setTheme } = useTheme();
-
-  const {
-    Component,
-    slots,
-    isSelected,
-    getBaseProps,
-    getInputProps,
-    getWrapperProps,
-  } = useSwitch({
-    isSelected: theme === "light",
-    onChange: () => setTheme(theme === "light" ? "dark" : "light"),
-  });
-
+  // Sync Zustand store with HeroUI's theme
   useEffect(() => {
-    setIsMounted(true);
-  }, [isMounted]);
+    setTheme(theme);
+  }, []);
 
-  // Prevent Hydration Mismatch
-  if (!isMounted) return <div className="w-6 h-6" />;
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setTheme(newTheme);
+    setGlobalTheme(newTheme);
+    setSelected(newTheme);
+  };
+
+  const iconMap: Record<string, React.ReactNode> = {
+    light: <Sun className="size-5" />,
+    dark: <Moon className="size-5" />,
+    system: <Laptop className="size-5" />,
+  };
 
   return (
-    <Component
-      aria-label={isSelected ? "Switch to dark mode" : "Switch to light mode"}
-      {...getBaseProps({
-        className: clsx(
-          "px-px transition-opacity hover:opacity-80 cursor-pointer",
-          className,
-          classNames?.base,
-        ),
-      })}
-    >
-      <VisuallyHidden>
-        <input {...getInputProps()} />
-      </VisuallyHidden>
-      <div
-        {...getWrapperProps()}
-        className={slots.wrapper({
-          class: clsx(
-            [
-              "w-auto h-auto",
-              "bg-transparent",
-              "rounded-lg",
-              "flex items-center justify-center",
-              "group-data-[selected=true]:bg-transparent",
-              "!text-default-500",
-              "pt-px",
-              "px-0",
-              "mx-0",
-            ],
-            classNames?.wrapper,
-          ),
-        })}
+    <Dropdown size="sm">
+      <DropdownTrigger>
+        <Button isIconOnly variant="bordered">
+          {iconMap[selected]}
+        </Button>
+      </DropdownTrigger>
+      <DropdownMenu
+        aria-label="Theme selection"
+        variant="flat"
+        selectionMode="single"
+        selectedKeys={[selected]}
+        onSelectionChange={(keys) => {
+          const key = Array.from(keys)[0] as "light" | "dark" | "system";
+          handleThemeChange(key);
+        }}
       >
-        {isSelected ? (
-          <MoonFilledIcon size={22} />
-        ) : (
-          <SunFilledIcon size={22} />
-        )}
-      </div>
-    </Component>
+        <DropdownItem key="light" startContent={<Sun className="size-5" />}>
+          Light
+        </DropdownItem>
+        <DropdownItem key="dark" startContent={<Moon className="size-5" />}>
+          Dark
+        </DropdownItem>
+        <DropdownItem key="system" startContent={<Laptop className="size-5" />}>
+          System
+        </DropdownItem>
+      </DropdownMenu>
+    </Dropdown>
   );
 };

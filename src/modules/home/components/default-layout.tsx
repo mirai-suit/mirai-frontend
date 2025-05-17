@@ -1,6 +1,5 @@
 import { Link } from "@heroui/link";
-
-import { Navbar } from "@/components/navbar";
+import { Navbar } from "./navbar";
 
 export default function DefaultLayout({
   children,
@@ -21,7 +20,7 @@ export default function DefaultLayout({
           title="heroui.com homepage"
         >
           <span className="text-default-600">Powered by</span>
-          <p className="text-primary">HeroUI</p>
+          <p className="text-primary">Mirai</p>
         </Link>
       </footer>
     </div>
