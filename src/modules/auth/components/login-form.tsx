@@ -4,10 +4,8 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeSlash } from "@phosphor-icons/react";
-// import { useLogin } from "@/libs/api/auth.query";
 import { useNavigate } from "react-router-dom";
-// import { useAuthStore } from "@/store/useAuthStore";
-// import { handleApiError } from "@/libs/helpers";
+
 import { Logo } from "@/components/icons";
 import { loginSchema } from "../validations";
 import { useLogin } from "../api";

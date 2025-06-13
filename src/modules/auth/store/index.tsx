@@ -23,7 +23,7 @@ const initialState: AuthState = {
   user: null,
   accessToken: null,
   refreshToken: null,
-  isAuthenticated: false,
+  isAuthenticated: true,
 };
 
 type AuthStore = AuthState & AuthActions;

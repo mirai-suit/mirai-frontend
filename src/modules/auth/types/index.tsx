@@ -2,10 +2,11 @@ export type User = {
   id: string;
   firstName: string;
   lastName: string;
+  avatar: string;
   email: string;
   roles: string[];
-  isverified: boolean;
-  plan: "FREE" | "PRO";
+  isverified?: boolean;
+  plan?: "FREE" | "PRO";
 };
 
 export type LoginResponse = {

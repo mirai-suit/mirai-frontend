@@ -16,7 +16,7 @@ import { Logo } from "@/components/icons";
 import { useNavigate } from "react-router-dom";
 import { siteConfig } from "@/config/site";
 import { useAuthStore } from "@/modules/auth/store";
-import { ThemeDropdown } from "@/components/theme-switch";
+import { ThemeTabs } from "@/components/theme-switch";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -57,14 +57,14 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">
-          <ThemeDropdown />
+          <ThemeTabs />
           <Button color="primary" onPress={() => navigate("/auth")}>
             {isAuthenticated ? "Go to Dashboard" : "Start Cloning"}
           </Button>
         </NavbarItem>
       </NavbarContent>
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <ThemeDropdown />
+        <ThemeTabs />
         <Button color="primary">Signup</Button>
         <NavbarMenuToggle />
       </NavbarContent>

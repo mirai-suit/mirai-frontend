@@ -5,8 +5,8 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeSlash } from "@phosphor-icons/react";
-// import { useAuthStore } from "@/store/useAuthStore";
 import { useNavigate } from "react-router-dom";
+
 import { handleApiError } from "@/libs/helpers";
 import { registerSchema } from "../validations";
 import { useSignup } from "../api";
@@ -164,7 +164,7 @@ export default function RegisterForm() {
         </form>
         <p className="text-center text-small">
           <Link href="/auth/login" size="sm">
-            Already have an account ? Login
+            Already have an account? Login
           </Link>
         </p>
       </div>

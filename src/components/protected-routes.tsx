@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/modules/auth/store";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 interface ProtectedRouteProps {
@@ -13,7 +14,7 @@ export default function ProtectedRoute({
 }: ProtectedRouteProps) {
   //   const { user, isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
-  const isAuthenticated = false;
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   // If not authenticated but authentication is required
   if (requireAuth && !isAuthenticated) {

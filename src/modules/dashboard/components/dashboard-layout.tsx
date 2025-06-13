@@ -1,48 +1,52 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
+import { useAuthStore } from "@/modules/auth/store";
+import { List } from "@phosphor-icons/react";
+import { mockOrganizations } from "./mock-data";
+import { Sidebar } from "./sidebar";
+
 export default function DashboardLayout() {
-  //   const { isSidebarCollapsed, setIsMobileSidebarOpen, isMobileSidebarOpen } =
-  //     useLayoutStore((s) => s);
+  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [selectedOrg, setSelectedOrg] = React.useState(mockOrganizations[0].id);
+
+  const handleToggleMobile = () => {
+    setIsMobileOpen(!isMobileOpen);
+  };
+
+  const handleToggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  const handleOrgChange = (orgId: string) => {
+    setSelectedOrg(orgId);
+  };
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  //   const { isAuthenticated, user } = useAuthStore((state) => state);
-  const [isMobile, setIsMobile] = useState(false);
-
-  //   useEffect(() => {
-  //     if (pathname === "/u" && isAuthenticated) {
-  //       navigate("/u/" + user?.id);
-  //     }
-  //   }, [pathname, navigate]);
+  const { isAuthenticated, user } = useAuthStore((state) => state);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        // lg breakpoint
-        setIsMobile(false);
-      } else {
-        setIsMobile(true);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    if (pathname === "/u" && isAuthenticated) {
+      navigate("/u/" + user?.id);
+    }
+  }, [pathname, navigate]);
 
   return (
-    <div className="">
-      {/* <TopNavbar onMenuToggle={() => setIsMobileSidebarOpen(true)} />
+    <div className="flex h-screen bg-background text-foreground">
+      {/* Sidebar component */}
       <Sidebar
-        isCollapsed={isSidebarCollapsed}
-        isMobile={isMobile}
-        isOpen={isMobileSidebarOpen}
-        onClose={() => setIsMobileSidebarOpen(false)}
-      /> */}
-      <main
-      // className={`px-4 py-3 flex-grow transition-all duration-300 ${
-      //   isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
-      // }`}
-      >
+        isOpen={isMobileOpen}
+        isCollapsed={isCollapsed}
+        onToggle={handleToggleMobile}
+        onCollapse={handleToggleCollapse}
+        organizations={mockOrganizations}
+        selectedOrg={selectedOrg}
+        onOrgChange={handleOrgChange}
+      />
+
+      <main className="flex-1 p-6 overflow-auto">
         <Outlet />
       </main>
     </div>
