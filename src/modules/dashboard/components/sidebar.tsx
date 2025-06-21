@@ -1,9 +1,9 @@
 import React from "react";
-import { Avatar, Button, Tooltip } from "@heroui/react";
+import { Button, Tooltip } from "@heroui/react";
 import { FolderPlus, Gear } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { Organization } from "../types/sidebar.type";
+import { Organization } from "../types";
 
 import { SidebarHeader } from "./sidebar-header";
 import { OrganizationSelector } from "./organization-selector";
@@ -48,7 +48,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleCreateFolder = () => {
-    console.log("Create new folder");
+    // Folder creation logic will be implemented later
   };
 
   // Determine sidebar width based on state
@@ -94,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Organization with collapsed state */}
-        {isCollapsed && (
+        {isCollapsed && selectedOrganization && (
           <div className="px-3 py-4">
             <Tooltip content={selectedOrganization.name} placement="right">
               <Button
@@ -103,17 +103,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="w-10 h-10 rounded-full mx-auto"
                 variant="light"
               >
-                {selectedOrganization.avatar ? (
-                  <Avatar
-                    name={selectedOrganization.name.charAt(0)}
-                    size="sm"
-                    src={selectedOrganization.avatar}
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium">
-                    {selectedOrganization.name.charAt(0)}
-                  </div>
-                )}
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium">
+                  {selectedOrganization.name.charAt(0)}
+                </div>
               </Button>
             </Tooltip>
           </div>
@@ -146,7 +138,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <FolderTree
             activeItem={activeItem}
             expandedFolders={expandedFolders}
-            folders={selectedOrganization.folders}
+            folders={[]} // TODO: Will be populated when folder structure is implemented
             isCollapsed={isCollapsed}
             onBoardSelect={handleBoardSelect}
             onFolderToggle={handleFolderToggle}

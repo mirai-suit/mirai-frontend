@@ -1,6 +1,21 @@
 import type { User } from "@/modules/auth/types";
+
 import React from "react";
+
 export type UserData = User | null;
+
+export interface Organization {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  ownerId: string;
+}
+
+export interface CreateOrganizationResponse {
+  organization: Organization;
+  message: string;
+}
 
 export interface Workspace {
   id: string;

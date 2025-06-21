@@ -11,9 +11,9 @@ import {
 } from "@heroui/navbar";
 import { link as linkStyles } from "@heroui/theme";
 import clsx from "clsx";
+import { useNavigate } from "react-router-dom";
 
 import { Logo } from "@/components/icons";
-import { useNavigate } from "react-router-dom";
 import { siteConfig } from "@/config/site";
 import { useAuthStore } from "@/modules/auth/store";
 import { ThemeTabs } from "@/components/theme-switch";
@@ -21,6 +21,7 @@ import { ThemeTabs } from "@/components/theme-switch";
 export const Navbar = () => {
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -40,7 +41,7 @@ export const Navbar = () => {
               <Link
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium"
+                  "data-[active=true]:text-primary data-[active=true]:font-medium",
                 )}
                 color="foreground"
                 href={item.href}
@@ -59,7 +60,7 @@ export const Navbar = () => {
         <NavbarItem className="hidden sm:flex gap-2">
           <ThemeTabs />
           <Button color="primary" onPress={() => navigate("/auth")}>
-            {isAuthenticated ? "Go to Dashboard" : "Start Cloning"}
+            {isAuthenticated ? "Go to Dashboard" : "Get Started"}
           </Button>
         </NavbarItem>
       </NavbarContent>

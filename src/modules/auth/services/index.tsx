@@ -26,8 +26,8 @@ export const authService = {
         // Revoke the refresh token on the server
         await apiClient.post("/auth/logout", { token: refreshToken });
       }
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
+      // Handle logout error silently
     } finally {
       // Clear auth state regardless of API response
       useAuthStore.getState().clearAuth();

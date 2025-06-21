@@ -1,9 +1,5 @@
-export interface Organization {
-  id: string;
-  name: string;
-  avatar?: string;
-  folders: Folder[];
-}
+// Re-export Organization from main types to maintain consistency
+export type { Organization } from "./index";
 
 export interface Folder {
   id: string;

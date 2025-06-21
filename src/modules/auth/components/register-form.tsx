@@ -7,10 +7,11 @@ import { z } from "zod";
 import { Eye, EyeSlash } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 
-import { handleApiError } from "@/libs/helpers";
 import { registerSchema } from "../validations";
 import { useSignup } from "../api";
 import { useAuthStore } from "../store";
+
+import { handleApiError } from "@/libs/helpers";
 import { Logo } from "@/components/icons";
 
 export default function RegisterForm() {
@@ -40,6 +41,7 @@ export default function RegisterForm() {
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
     signup(values, {
       onSuccess: (response) => {
+        // Set auth state
         useAuthStore
           .getState()
           .setAuth(
@@ -49,14 +51,16 @@ export default function RegisterForm() {
           );
 
         addToast({
-          title: "Account created successfully",
+          title: response.message || "Signup successful",
           color: "success",
         });
 
-        navigate("/u/" + response.data.user.id);
+        // Use setTimeout to ensure state is persisted before navigation
+        setTimeout(() => {
+          navigate("/u/" + response.data.user.id, { replace: true });
+        }, 50);
       },
       onError: (error) => {
-        console.error("Register Error:", error);
         addToast({
           title: "Signup failed",
           color: "danger",
@@ -78,65 +82,64 @@ export default function RegisterForm() {
         </p>
         <div className="flex items-center justify-center mb-2">
           <Avatar
-            size={40}
-            name={`${watch("firstName")} ${watch("lastName")}`}
-            variant="beam"
             colors={["#7828c8", "#006FEE"]}
+            name={`${watch("firstName")} ${watch("lastName")}`}
+            size={40}
+            variant="beam"
           />
         </div>
         <form
-          onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-4 pb-4"
+          onSubmit={handleSubmit(onSubmit)}
         >
           <Controller
-            name="firstName"
             control={control}
+            name="firstName"
             render={({ field }) => (
               <Input
                 label="First Name"
-                type="text"
                 size="sm"
+                type="text"
                 {...field}
-                isInvalid={Boolean(errors.firstName)}
                 errorMessage={errors.firstName?.message}
+                isInvalid={Boolean(errors.firstName)}
               />
             )}
           />
           <Controller
-            name="lastName"
             control={control}
+            name="lastName"
             render={({ field }) => (
               <Input
                 label="Last Name"
-                type="text"
                 size="sm"
+                type="text"
                 {...field}
-                isInvalid={Boolean(errors.lastName)}
                 errorMessage={errors.lastName?.message}
+                isInvalid={Boolean(errors.lastName)}
               />
             )}
           />
 
           <Controller
-            name="email"
             control={control}
+            name="email"
             render={({ field }) => (
               <Input
                 label="Email"
-                type="text"
                 size="sm"
+                type="text"
                 {...field}
-                isInvalid={Boolean(errors.email)}
                 errorMessage={errors.email?.message}
+                isInvalid={Boolean(errors.email)}
               />
             )}
           />
           <Controller
-            name="password"
             control={control}
+            name="password"
             render={({ field }) => (
               <Input
-                label="Password"
                 endContent={
                   <button
                     className="focus:outline-none"
@@ -150,21 +153,23 @@ export default function RegisterForm() {
                     )}
                   </button>
                 }
-                type={isVisible ? "text" : "password"}
+                label="Password"
                 size="sm"
+                type={isVisible ? "text" : "password"}
                 {...field}
-                isInvalid={Boolean(errors.password)}
                 errorMessage={errors.password?.message}
+                isInvalid={Boolean(errors.password)}
               />
             )}
           />
-          <Button color="primary" type="submit" isLoading={isPending}>
+          <Button color="primary" isLoading={isPending} type="submit">
             Sign Up
           </Button>
         </form>
         <p className="text-center text-small">
+          Already have an account?{" "}
           <Link href="/auth/login" size="sm">
-            Already have an account? Login
+            Login
           </Link>
         </p>
       </div>

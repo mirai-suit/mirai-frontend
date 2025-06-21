@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
 import { User } from "../types";
 
 type AuthState = {
@@ -15,6 +16,7 @@ type AuthActions = {
     accessToken: string | null,
     refreshToken: string | null
   ) => void;
+  setUser: (user: User) => void;
   clearAuth: () => void;
   setAccessToken: (token: string) => void;
 };
@@ -23,7 +25,7 @@ const initialState: AuthState = {
   user: null,
   accessToken: null,
   refreshToken: null,
-  isAuthenticated: true,
+  isAuthenticated: false,
 };
 
 type AuthStore = AuthState & AuthActions;
@@ -40,6 +42,12 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: !!user && !!accessToken,
         });
       },
+
+      setUser: (user) =>
+        set((state) => ({
+          ...state,
+          user,
+        })),
 
       clearAuth: () =>
         set({

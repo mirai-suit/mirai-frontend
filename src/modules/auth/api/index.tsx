@@ -15,7 +15,7 @@ export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation<LoginResponse, Error, LoginInput>({
-    mutationFn: (credentials: LoginInput) => authService.login(credentials),
+    mutationFn: authService.login,
     onSuccess: () => {
       // Invalidate any auth-related queries
       queryClient.invalidateQueries({ queryKey: ["user"] });

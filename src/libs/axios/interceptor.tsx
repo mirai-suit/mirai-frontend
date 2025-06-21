@@ -44,6 +44,20 @@ apiClient.interceptors.response.use(
 
     // If 401 and not retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // Check if this is a token-related issue vs credential issue
+      const errorMessage = (error.response?.data as any)?.message || "";
+      const isTokenRelated =
+        errorMessage.toLowerCase().includes("token") ||
+        errorMessage.toLowerCase().includes("expired") ||
+        errorMessage.toLowerCase().includes("invalid token") ||
+        errorMessage.toLowerCase().includes("unauthorized token") ||
+        errorMessage.toLowerCase().includes("malformed");
+
+      // Only trigger refresh logic for token-related 401 errors
+      if (!isTokenRelated) {
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         // Queue the failed request
         return new Promise((resolve, reject) => {
@@ -51,6 +65,7 @@ apiClient.interceptors.response.use(
         })
           .then((token) => {
             originalRequest.headers.Authorization = `Bearer ${token}`;
+
             return apiClient(originalRequest);
           })
           .catch((err) => Promise.reject(err));
@@ -90,6 +105,7 @@ apiClient.interceptors.response.use(
 
         // ✅ Update tokens in store
         const user = useAuthStore.getState().user;
+
         useAuthStore.getState().setAuth(user, accessToken, newRefreshToken);
 
         // ✅ Retry original request with new access token
@@ -101,6 +117,7 @@ apiClient.interceptors.response.use(
         processQueue(new Error("Failed to refresh token"));
         useAuthStore.getState().clearAuth();
         window.location.href = "/auth/login";
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

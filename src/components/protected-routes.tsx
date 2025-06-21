@@ -1,5 +1,6 @@
-import { useAuthStore } from "@/modules/auth/store";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+
+import { useAuthStore } from "@/modules/auth/store";
 
 interface ProtectedRouteProps {
   requireAuth?: boolean;
@@ -9,34 +10,25 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({
   requireAuth = true,
-  requireAdmin = false,
-  requireVerified = false,
+  requireAdmin: _requireAdmin = false,
+  requireVerified: _requireVerified = false,
 }: ProtectedRouteProps) {
-  //   const { user, isAuthenticated, isAdmin } = useAuth();
   const location = useLocation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   // If not authenticated but authentication is required
   if (requireAuth && !isAuthenticated) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate replace state={{ from: location }} to="/auth/login" />;
   }
-
-  //   // If authenticated but admin access is required and user is not admin
-  //   if (requireAdmin && !isAdmin) {
-  //     return <Navigate to="/unauthorized" state={{ from: location }} replace />;
-  //   }
-
-  // If email verification is required but user is not verified
-  //   if (requireVerified && user && !user.isverified) {
-  //     return <Navigate to="/verify-email" state={{ from: location }} replace />;
-  //   }
 
   // If user is authenticated and trying to access auth pages (login/signup)
   if (
     isAuthenticated &&
-    ["/auth/login", "/signup"].includes(location.pathname)
+    ["/auth/login", "/auth/register", "/login", "/register"].includes(
+      location.pathname
+    )
   ) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate replace to="/dashboard" />;
   }
 
   return <Outlet />;
