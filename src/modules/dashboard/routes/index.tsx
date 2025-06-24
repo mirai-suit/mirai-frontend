@@ -1,8 +1,10 @@
-import ErrorPage from "@/components/error";
-import ProtectedRoute from "@/components/protected-routes";
 import DashboardLayout from "../components/dashboard-layout";
 import DashboardHome from "../pages/home";
+
+import ErrorPage from "@/components/error";
+import ProtectedRoute from "@/components/protected-routes";
 import { HeroUIProvider } from "@/providers/heroui-provider";
+import { boardRoutes } from "@/modules/board/routes";
 
 export const dashboardRoutes = {
   path: "u",
@@ -21,6 +23,16 @@ export const dashboardRoutes = {
         {
           path: "",
           element: <DashboardHome />,
+        },
+        {
+          path: "o/:orgId",
+          children: [
+            {
+              path: "",
+              element: <DashboardHome />,
+            },
+            boardRoutes,
+          ],
         },
       ],
     },

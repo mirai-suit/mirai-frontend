@@ -13,6 +13,7 @@ import { useAuthStore } from "../store";
 
 import { handleApiError } from "@/libs/helpers";
 import { Logo } from "@/components/icons";
+import { siteConfig } from "@/config/site";
 
 export default function RegisterForm() {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ export default function RegisterForm() {
           <Avatar
             colors={["#7828c8", "#006FEE"]}
             name={`${watch("firstName")} ${watch("lastName")}`}
-            size={40}
+            size={siteConfig?.avatarSize}
             variant="beam"
           />
         </div>

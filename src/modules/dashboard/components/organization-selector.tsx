@@ -55,10 +55,18 @@ export const OrganizationSelector: React.FC<OrganizationSelectorProps> = ({
   });
 
   const handleSelectionChange = (value: string) => {
+    // Prevent navigation if value is empty or undefined
+    if (!value || value === "") {
+      return;
+    }
+
     if (value === "create-new") {
       onOpen();
     } else {
-      onOrgChange(value);
+      // Only trigger change if it's actually a different organization
+      if (value !== selectedOrg) {
+        onOrgChange(value);
+      }
     }
   };
 
@@ -99,7 +107,15 @@ export const OrganizationSelector: React.FC<OrganizationSelectorProps> = ({
         items={orgOptions}
         label="Organization"
         selectedKeys={[selectedOrg]}
-        onChange={(e) => handleSelectionChange(e.target.value)}
+        onSelectionChange={(keys) => {
+          const keysArray = Array.from(keys);
+
+          if (keysArray.length > 0) {
+            const selectedKey = keysArray[0] as string;
+
+            handleSelectionChange(selectedKey);
+          }
+        }}
       >
         {(org) => (
           <SelectItem

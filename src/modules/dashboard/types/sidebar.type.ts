@@ -1,14 +1,6 @@
 // Re-export Organization from main types to maintain consistency
 export type { Organization } from "./index";
 
-export interface Folder {
-  id: string;
-  name: string;
-  icon?: string;
-  boards: Board[];
-  isExpanded?: boolean;
-}
-
 export interface Board {
   id: string;
   name: string;

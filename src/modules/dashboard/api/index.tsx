@@ -1,3 +1,6 @@
+import type { Organization } from "../types";
+import type { CreateOrganizationInput } from "../validations";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { organizationService } from "../services";
@@ -14,11 +17,9 @@ export const ORGANIZATION_QUERY_KEYS = {
 
 // Fetch organizations list
 export const useOrganizations = () => {
-  return useQuery({
+  return useQuery<Organization[]>({
     queryKey: ORGANIZATION_QUERY_KEYS.lists(),
     queryFn: organizationService.getOrganizations,
-    staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh for 5 min
-    gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache for 10 min
   });
 };
 
@@ -26,7 +27,7 @@ export const useOrganizations = () => {
 export const useCreateOrganization = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<Organization, Error, CreateOrganizationInput>({
     mutationFn: organizationService.createOrganization,
 
     onSuccess: () => {

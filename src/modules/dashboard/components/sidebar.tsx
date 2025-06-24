@@ -1,13 +1,15 @@
 import React from "react";
 import { Button, Tooltip } from "@heroui/react";
-import { FolderPlus, Gear } from "@phosphor-icons/react";
+import { Gear } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Organization } from "../types";
 
 import { SidebarHeader } from "./sidebar-header";
 import { OrganizationSelector } from "./organization-selector";
-import { FolderTree } from "./folder-tree";
+import { OrganizationSelectorSkeleton } from "./organization-selector-skeleton";
+
+import { BoardList } from "@/modules/board/components/board-list";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -17,6 +19,7 @@ interface SidebarProps {
   organizations: Organization[];
   selectedOrg: string;
   onOrgChange: (orgId: string) => void;
+  isLoading?: boolean; // New prop to handle loading state
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -27,29 +30,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   organizations,
   selectedOrg,
   onOrgChange,
+  isLoading = false,
 }) => {
-  const [expandedFolders, setExpandedFolders] = React.useState<
-    Record<string, boolean>
-  >({});
-  const [activeItem, setActiveItem] = React.useState<string | null>(null);
-
   const selectedOrganization =
     organizations.find((org) => org.id === selectedOrg) || organizations[0];
-
-  const handleFolderToggle = (folderId: string) => {
-    setExpandedFolders((prev) => ({
-      ...prev,
-      [folderId]: !prev[folderId],
-    }));
-  };
-
-  const handleBoardSelect = (boardId: string) => {
-    setActiveItem(boardId);
-  };
-
-  const handleCreateFolder = () => {
-    // Folder creation logic will be implemented later
-  };
 
   // Determine sidebar width based on state
   const sidebarWidth = isCollapsed ? "w-16" : "w-72";
@@ -86,11 +70,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Organization Selector */}
         <div className={`px-3 py-4 ${isCollapsed ? "hidden" : "block"}`}>
-          <OrganizationSelector
-            organizations={organizations}
-            selectedOrg={selectedOrg}
-            onOrgChange={onOrgChange}
-          />
+          {isLoading ? (
+            <OrganizationSelectorSkeleton />
+          ) : (
+            <OrganizationSelector
+              organizations={organizations}
+              selectedOrg={selectedOrg}
+              onOrgChange={onOrgChange}
+            />
+          )}
         </div>
 
         {/* Organization with collapsed state */}
@@ -111,38 +99,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* Folder Structure */}
-        <div className="flex-1 overflow-y-auto px-2">
-          <div className="flex items-center justify-between px-2 py-3">
-            {!isCollapsed && (
-              <h3 className="text-sm font-medium text-foreground-600">
-                Folders
-              </h3>
-            )}
-            <Tooltip
-              content="Create new folder"
-              placement={isCollapsed ? "right" : "top"}
-            >
-              <Button
-                isIconOnly
-                aria-label="Create new folder"
-                size="sm"
-                variant="light"
-                onPress={handleCreateFolder}
-              >
-                <FolderPlus size={18} />
-              </Button>
-            </Tooltip>
-          </div>
-
-          <FolderTree
-            activeItem={activeItem}
-            expandedFolders={expandedFolders}
-            folders={[]} // TODO: Will be populated when folder structure is implemented
-            isCollapsed={isCollapsed}
-            onBoardSelect={handleBoardSelect}
-            onFolderToggle={handleFolderToggle}
-          />
+        {/* Boards Section */}
+        <div className="flex-1 overflow-y-auto">
+          <BoardList isCollapsed={isCollapsed} organizationId={selectedOrg} />
         </div>
 
         {/* Footer */}

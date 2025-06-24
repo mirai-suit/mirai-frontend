@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Avatar,
   Badge,
   Button,
   Dropdown,
@@ -21,13 +20,18 @@ import {
   User,
   Users,
   ChartBar,
-  Question,
   X,
   PaintBrushHousehold,
 } from "@phosphor-icons/react";
-import { NotificationPanel } from "./notification-panel";
+import Avatar from "boring-avatars";
+
 import { Notification } from "../types/sidebar.type";
+
+import { NotificationPanel } from "./notification-panel";
+
 import { ThemeTabs } from "@/components/theme-switch";
+import { useAuthStore } from "@/modules/auth/store";
+import { siteConfig } from "@/config/site";
 
 interface SidebarHeaderProps {
   isCollapsed: boolean;
@@ -42,6 +46,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
 }) => {
   const [notificationCount, setNotificationCount] = React.useState(3);
   const [isNotificationOpen, setIsNotificationOpen] = React.useState(false);
+  const user = useAuthStore((state) => state.user);
   const [notifications, setNotifications] = React.useState<Notification[]>([
     {
       id: "1",
@@ -82,14 +87,14 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       prev.map((notification) =>
         notification.id === id
           ? { ...notification, isRead: true }
-          : notification
-      )
+          : notification,
+      ),
     );
   };
 
   const handleMarkAllAsRead = () => {
     setNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, isRead: true }))
+      prev.map((notification) => ({ ...notification, isRead: true })),
     );
   };
 
@@ -100,11 +105,11 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
         {/* Mobile Close Button */}
         <Button
           isIconOnly
+          aria-label="Close sidebar"
+          className="lg:hidden mr-2"
           size="sm"
           variant="light"
-          className="lg:hidden mr-2"
           onPress={onToggleMobile}
-          aria-label="Close sidebar"
         >
           <X size={18} />
         </Button>
@@ -124,8 +129,8 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
         {/* Notification Bell */}
         <Popover
           isOpen={isNotificationOpen}
-          onOpenChange={setIsNotificationOpen}
           placement="bottom-end"
+          onOpenChange={setIsNotificationOpen}
         >
           <PopoverTrigger>
             <div>
@@ -134,16 +139,16 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                 placement="bottom"
               >
                 <Badge
-                  content={unreadCount}
                   color="danger"
-                  size="sm"
+                  content={unreadCount}
                   isInvisible={unreadCount === 0}
+                  size="sm"
                 >
                   <Button
                     isIconOnly
+                    aria-label="Notifications"
                     size="sm"
                     variant="light"
-                    aria-label="Notifications"
                   >
                     <Bell
                       size={18}
@@ -157,9 +162,9 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           <PopoverContent className="p-0 w-80">
             <NotificationPanel
               notifications={notifications}
-              onMarkAsRead={handleMarkAsRead}
-              onMarkAllAsRead={handleMarkAllAsRead}
               onClose={() => setIsNotificationOpen(false)}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onMarkAsRead={handleMarkAsRead}
             />
           </PopoverContent>
         </Popover>
@@ -169,14 +174,15 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           <DropdownTrigger>
             <Button
               isIconOnly
-              variant="light"
-              className="rounded-full"
               aria-label="User menu"
+              className="rounded-full"
+              variant="light"
             >
               <Avatar
-                src="https://img.heroui.chat/image/avatar?w=200&h=200&u=1"
-                size="sm"
-                isBordered
+                colors={["#7828c8", "#006FEE"]}
+                name={user?.firstName + " " + user?.lastName}
+                size={siteConfig.avatarSize}
+                variant="beam"
               />
             </Button>
           </DropdownTrigger>
@@ -195,8 +201,8 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
             </DropdownItem>
             <DropdownItem
               key="THeme"
-              startContent={<PaintBrushHousehold size={18} />}
               className="p-0 pl-2 hover:!bg-transparent hover:!text-inherit focus:!bg-transparent active:!bg-transparent"
+              startContent={<PaintBrushHousehold size={18} />}
             >
               <div className=" flex items-center justify-end">
                 <ThemeTabs size="sm" />
@@ -220,10 +226,10 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           >
             <Button
               isIconOnly
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               size="sm"
               variant="light"
               onPress={onCollapse}
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {isCollapsed ? <CaretRight size={18} /> : <CaretLeft size={18} />}
             </Button>

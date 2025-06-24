@@ -1,26 +1,32 @@
+import type {
+  Organization,
+  GetOrganizationsResponse,
+  CreateOrganizationResponse,
+} from "../types";
+
 import { CreateOrganizationInput } from "../validations";
 
 import apiClient from "@/libs/axios/interceptor";
 
 export const organizationService = {
   // Create organization method
-  async createOrganization(organizationData: CreateOrganizationInput) {
-    const response = await apiClient.post(
+  async createOrganization(
+    organizationData: CreateOrganizationInput
+  ): Promise<Organization> {
+    const response = await apiClient.post<CreateOrganizationResponse>(
       "/organization/create",
       organizationData
     );
 
-    // Backend returns { success: true, organization: {...} } or similar
-    // Extract just the organization object
-    return response.data.organization || response.data;
+    return response.data.organization;
   },
 
   // Get user's organizations
-  async getOrganizations() {
-    const response = await apiClient.get("/organization/my-organizations");
+  async getOrganizations(): Promise<Organization[]> {
+    const response = await apiClient.get<GetOrganizationsResponse>(
+      "/organization/my-organizations"
+    );
 
-    // Backend returns { success: true, organizations: [...] }
-    // Extract just the organizations array
     return response.data.organizations;
   },
 
