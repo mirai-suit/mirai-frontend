@@ -1,6 +1,7 @@
-import apiClient from "@/libs/axios/interceptor";
 import { LoginInput, UserInput } from "../validations";
 import { useAuthStore } from "../store";
+
+import apiClient from "@/libs/axios/interceptor";
 
 export const authService = {
   // Sign up method

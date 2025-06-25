@@ -107,6 +107,6 @@ export const useBoardStore = create<BoardStore>()(
         boardViewMode: state.boardViewMode,
         boardFilters: state.boardFilters,
       }),
-    }
-  )
+    },
+  ),
 );

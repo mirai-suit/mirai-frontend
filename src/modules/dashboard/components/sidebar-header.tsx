@@ -86,14 +86,14 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       prev.map((notification) =>
         notification.id === id
           ? { ...notification, isRead: true }
-          : notification
-      )
+          : notification,
+      ),
     );
   };
 
   const handleMarkAllAsRead = () => {
     setNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, isRead: true }))
+      prev.map((notification) => ({ ...notification, isRead: true })),
     );
   };
 

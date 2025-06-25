@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Tooltip } from "@heroui/react";
 import { Gear } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Organization } from "../types";
 
@@ -32,8 +33,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOrgChange,
   isLoading = false,
 }) => {
+  const navigate = useNavigate();
+  const { userId } = useParams();
+
   const selectedOrganization =
     organizations.find((org) => org.id === selectedOrg) || organizations[0];
+
+  const handleSettingsClick = () => {
+    if (selectedOrg && userId) {
+      navigate(`/u/${userId}/o/${selectedOrg}/settings`);
+    }
+  };
 
   // Determine sidebar width based on state
   const sidebarWidth = isCollapsed ? "w-16" : "w-72";
@@ -107,12 +117,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Footer */}
         <div className="p-3 border-t border-divider">
           {isCollapsed ? (
-            <Tooltip content="Settings" placement="right">
+            <Tooltip content="Organization Settings" placement="right">
               <Button
                 isIconOnly
-                aria-label="Settings"
+                aria-label="Organization Settings"
                 className="w-10 h-10 mx-auto"
                 variant="light"
+                onPress={handleSettingsClick}
               >
                 <Gear size={18} />
               </Button>
@@ -122,8 +133,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="w-full justify-start"
               startContent={<Gear size={18} />}
               variant="light"
+              onPress={handleSettingsClick}
             >
-              Settings
+              Organization Settings
             </Button>
           )}
         </div>

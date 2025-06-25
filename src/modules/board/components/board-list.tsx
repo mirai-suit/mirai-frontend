@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useBoards, useArchiveBoard, useDeleteBoard } from "../api";
 import { useBoardStore } from "../store";
 import { useAuthStore } from "../../auth/store";
+
 import { BoardCard } from "./board-card";
 import { BoardFilters } from "./board-filters";
 import { BoardEmptyState } from "./board-empty-state";
@@ -40,7 +41,7 @@ export const BoardList: React.FC<BoardListProps> = ({
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [activeFilter, setActiveFilter] = React.useState<BoardFilter>("recent");
   const [isActionLoading, setIsActionLoading] = React.useState<string | null>(
-    null
+    null,
   );
   const [boardToDelete, setBoardToDelete] = React.useState<Board | null>(null);
   const [boardToEdit, setBoardToEdit] = React.useState<Board | null>(null);
@@ -66,7 +67,7 @@ export const BoardList: React.FC<BoardListProps> = ({
           .sort(
             (a, b) =>
               new Date(b.updatedAt || b.createdAt).getTime() -
-              new Date(a.updatedAt || a.createdAt).getTime()
+              new Date(a.updatedAt || a.createdAt).getTime(),
           )
           .slice(0, 5);
       case "all":

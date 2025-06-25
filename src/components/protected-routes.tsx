@@ -25,7 +25,7 @@ export default function ProtectedRoute({
   if (
     isAuthenticated &&
     ["/auth/login", "/auth/register", "/login", "/register"].includes(
-      location.pathname
+      location.pathname,
     )
   ) {
     return <Navigate replace to="/dashboard" />;

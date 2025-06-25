@@ -96,22 +96,23 @@ export const ROLE_PERMISSIONS: Record<
 
 // Helper functions
 export function getPermissionsForRole(
-  role: OrganizationRole
+  role: OrganizationRole,
 ): OrganizationPermissions {
   return ROLE_PERMISSIONS[role];
 }
 
 export function hasPermission(
   role: OrganizationRole,
-  permission: keyof OrganizationPermissions
+  permission: keyof OrganizationPermissions,
 ): boolean {
   return ROLE_PERMISSIONS[role][permission];
 }
 
 export function canPerformAction(
   userRole: OrganizationRole | undefined,
-  requiredPermission: keyof OrganizationPermissions
+  requiredPermission: keyof OrganizationPermissions,
 ): boolean {
   if (!userRole) return false;
+
   return hasPermission(userRole, requiredPermission);
 }

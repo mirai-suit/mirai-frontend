@@ -47,7 +47,7 @@ export const taskService = {
   // Update a task
   async updateTask(
     taskId: string,
-    data: UpdateTaskRequest
+    data: UpdateTaskRequest,
   ): Promise<UpdateTaskResponse> {
     const response = await apiClient.put(`/task/${taskId}`, data);
 
@@ -57,7 +57,7 @@ export const taskService = {
   // Move a task between columns
   async moveTask(
     taskId: string,
-    data: MoveTaskRequest
+    data: MoveTaskRequest,
   ): Promise<MoveTaskResponse> {
     const response = await apiClient.patch(`/task/${taskId}/move`, data);
 
@@ -67,7 +67,7 @@ export const taskService = {
   // Assign users to a task
   async assignUsers(
     taskId: string,
-    data: AssignUsersRequest
+    data: AssignUsersRequest,
   ): Promise<AssignUsersResponse> {
     const response = await apiClient.patch(`/task/${taskId}/assign`, data);
 
@@ -95,7 +95,7 @@ export const taskService = {
     if (params.search) searchParams.append("search", params.search);
 
     const response = await apiClient.get(
-      `/task/search?${searchParams.toString()}`
+      `/task/search?${searchParams.toString()}`,
     );
 
     return response.data;

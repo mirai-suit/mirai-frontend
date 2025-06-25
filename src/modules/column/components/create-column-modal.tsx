@@ -66,10 +66,9 @@ export const CreateColumnModal: React.FC<CreateColumnModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} placement="center">
+    <Modal isOpen={isOpen} placement="center" onClose={handleClose}>
       <ModalContent>
         <WithPermission
-          permission="createBoards"
           fallback={
             <div className="p-6 text-center">
               <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
@@ -79,6 +78,7 @@ export const CreateColumnModal: React.FC<CreateColumnModalProps> = ({
               </p>
             </div>
           }
+          permission="createBoards"
         >
           <form onSubmit={handleSubmit(onSubmit)}>
             <ModalHeader className="flex flex-col gap-1">
@@ -86,38 +86,33 @@ export const CreateColumnModal: React.FC<CreateColumnModalProps> = ({
             </ModalHeader>
             <ModalBody>
               <Controller
-                name="name"
                 control={control}
+                name="name"
                 render={({ field }) => (
                   <Input
                     {...field}
+                    errorMessage={errors.name?.message}
+                    isInvalid={!!errors.name}
                     label="Column Name"
                     placeholder="Enter column name"
-                    isInvalid={!!errors.name}
-                    errorMessage={errors.name?.message}
                     variant="bordered"
                   />
                 )}
               />
 
               <Controller
-                name="color"
                 control={control}
+                name="color"
                 render={({ field }) => (
                   <Select
                     {...field}
                     label="Column Color"
                     placeholder="Select a color"
-                    selectedKeys={field.value ? [field.value] : []}
-                    onSelectionChange={(keys) => {
-                      const selectedKey = Array.from(keys)[0] as string;
-                      field.onChange(selectedKey);
-                    }}
-                    variant="bordered"
                     renderValue={() => {
                       const selectedColor = COLUMN_COLORS.find(
-                        (color) => color.value === field.value
+                        (color) => color.value === field.value,
                       );
+
                       return selectedColor ? (
                         <div className="flex items-center gap-2">
                           <div
@@ -127,6 +122,13 @@ export const CreateColumnModal: React.FC<CreateColumnModalProps> = ({
                           <span>{selectedColor.name}</span>
                         </div>
                       ) : null;
+                    }}
+                    selectedKeys={field.value ? [field.value] : []}
+                    variant="bordered"
+                    onSelectionChange={(keys) => {
+                      const selectedKey = Array.from(keys)[0] as string;
+
+                      field.onChange(selectedKey);
                     }}
                   >
                     {COLUMN_COLORS.map((color) => (
@@ -150,9 +152,9 @@ export const CreateColumnModal: React.FC<CreateColumnModalProps> = ({
               </Button>
               <Button
                 color="primary"
-                type="submit"
-                isLoading={createColumnMutation.isPending}
                 isDisabled={!isValid}
+                isLoading={createColumnMutation.isPending}
+                type="submit"
               >
                 Create Column
               </Button>

@@ -19,6 +19,7 @@ import { useUpdateColumn, useDeleteColumn } from "../api";
 import { COLUMN_COLORS, Column } from "../types";
 
 import { WithPermission } from "@/components/role-based-access";
+import { useOrgStore } from "@/store/useOrgStore";
 
 interface EditColumnModalProps {
   isOpen: boolean;
@@ -31,8 +32,11 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
   onClose,
   column,
 }) => {
+  const { hasPermission } = useOrgStore();
   const updateColumnMutation = useUpdateColumn();
   const deleteColumnMutation = useDeleteColumn();
+
+  const canEditColumn = hasPermission("createBoards");
 
   const {
     control,
@@ -97,21 +101,21 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
   if (!column) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} placement="center">
+    <Modal isOpen={isOpen} placement="center" onClose={handleClose}>
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader className="flex flex-col gap-1">Edit Column</ModalHeader>
           <ModalBody>
             <Controller
-              name="name"
               control={control}
+              name="name"
               render={({ field }) => (
                 <Input
                   {...field}
+                  errorMessage={errors.name?.message}
+                  isInvalid={!!errors.name}
                   label="Column Name"
                   placeholder="Enter column name"
-                  isInvalid={!!errors.name}
-                  errorMessage={errors.name?.message}
                   variant="bordered"
                 />
               )}
@@ -125,13 +129,6 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
                   {...field}
                   label="Column Color"
                   placeholder="Select a color"
-                  selectedKeys={field.value ? [field.value] : []}
-                  variant="bordered"
-                  onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string;
-
-                    field.onChange(selectedKey);
-                  }}
                   renderValue={(_items) => {
                     const selectedColor = COLUMN_COLORS.find(
                       (color) => color.value === field.value
@@ -146,6 +143,13 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
                         <span>{selectedColor.name}</span>
                       </div>
                     ) : null;
+                  }}
+                  selectedKeys={field.value ? [field.value] : []}
+                  variant="bordered"
+                  onSelectionChange={(keys) => {
+                    const selectedKey = Array.from(keys)[0] as string;
+
+                    field.onChange(selectedKey);
                   }}
                 >
                   {COLUMN_COLORS.map((color) => (
@@ -174,18 +178,18 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
                 tasks. This action cannot be undone.
               </p>
               <WithPermission
-                permission="deleteBoards"
                 fallback={
-                  <Button color="danger" variant="flat" size="sm" isDisabled>
+                  <Button isDisabled color="danger" size="sm" variant="flat">
                     Delete Column (No permission)
                   </Button>
                 }
+                permission="deleteBoards"
               >
                 <Button
                   color="danger"
-                  variant="flat"
-                  size="sm"
                   isLoading={deleteColumnMutation.isPending}
+                  size="sm"
+                  variant="flat"
                   onPress={handleDelete}
                 >
                   Delete Column
@@ -199,9 +203,9 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
             </Button>
             <Button
               color="primary"
-              type="submit"
-              isLoading={updateColumnMutation.isPending}
               isDisabled={!isValid || !isDirty}
+              isLoading={updateColumnMutation.isPending}
+              type="submit"
             >
               Update Column
             </Button>

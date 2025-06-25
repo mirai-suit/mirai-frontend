@@ -182,7 +182,7 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
                 .map((column, index) => {
                   // Filter tasks for this column from the tasks API response
                   const columnTasks = tasks.filter(
-                    (task) => task.columnId === column.id
+                    (task) => task.columnId === column.id,
                   );
 
                   return (
@@ -237,17 +237,17 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
             <div className="text-center space-y-4">
               <p className="text-default-500">No columns in this board yet</p>
               <WithPermission
-                permission="createBoards"
                 fallback={
                   <p className="text-xs text-default-400">
                     You don&apos;t have permission to create columns
                   </p>
                 }
+                permission="createBoards"
               >
                 <Button
                   color="primary"
-                  variant="flat"
                   startContent={<Plus size={16} />}
+                  variant="flat"
                   onPress={createColumnModal.onOpen}
                 >
                   Add your first column
@@ -260,8 +260,8 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
 
       {/* Create Column Modal */}
       <CreateColumnModal
-        isOpen={createColumnModal.isOpen}
         boardId={boardId!}
+        isOpen={createColumnModal.isOpen}
         onClose={createColumnModal.onClose}
       />
     </div>

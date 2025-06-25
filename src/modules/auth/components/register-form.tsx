@@ -48,7 +48,7 @@ export default function RegisterForm() {
           .setAuth(
             response.data.user,
             response.data.accessToken,
-            response.data.refreshToken
+            response.data.refreshToken,
           );
 
         addToast({

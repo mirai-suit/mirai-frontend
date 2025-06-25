@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/protected-routes";
 import { OrganizationProtectedRoute } from "@/components/organization-protected-route";
 import { HeroUIProvider } from "@/providers/heroui-provider";
 import { BoardPage } from "@/modules/board/pages/board";
+import { OrganizationSettingsPage } from "@/modules/organization/pages/settings";
 
 export const dashboardRoutes = {
   path: "u",
@@ -44,12 +45,12 @@ export const dashboardRoutes = {
           ),
         },
 
-        // Example: Admin-only organization settings
+        // Organization settings (Admin/Editor only for invites)
         {
           path: "o/:orgId/settings",
           element: (
-            <OrganizationProtectedRoute requiredRoles={["ADMIN"]}>
-              <div>Organization Settings (Admin Only)</div>
+            <OrganizationProtectedRoute>
+              <OrganizationSettingsPage />
             </OrganizationProtectedRoute>
           ),
         },

@@ -1,4 +1,5 @@
 import { Link } from "@heroui/link";
+
 import { Navbar } from "./navbar";
 
 export default function DefaultLayout({

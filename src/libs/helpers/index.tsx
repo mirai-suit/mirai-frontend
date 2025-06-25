@@ -1,5 +1,5 @@
 export const handleApiError = (
-  error: any
+  error: any,
 ): { message: string; error: string } => {
   if (error.response) {
     return {

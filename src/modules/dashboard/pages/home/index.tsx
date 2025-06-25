@@ -13,10 +13,10 @@ export default function DashboardHome() {
     <>
       <div className="lg:hidden mb-4">
         <Button
-          onPress={handleToggleMobile}
           className="p-2 rounded-md bg-content1 shadow-sm"
+          onPress={handleToggleMobile}
         >
-          <List size={24} className="text-default-500" />
+          <List className="text-default-500" size={24} />
           <span className="sr-only">Toggle sidebar</span>
         </Button>
       </div>

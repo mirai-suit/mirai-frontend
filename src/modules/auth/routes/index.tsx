@@ -1,7 +1,8 @@
-import ErrorPage from "@/components/error";
 import AuthLayout from "../components/auth-layout";
 import LoginPage from "../pages/login";
 import RegisterPage from "../pages/register";
+
+import ErrorPage from "@/components/error";
 import { HeroUIProvider } from "@/providers/heroui-provider";
 
 export const authRoutes = {

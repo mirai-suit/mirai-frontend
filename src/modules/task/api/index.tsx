@@ -35,7 +35,7 @@ export const taskKeys = {
 // Get tasks for a board
 export const useTasksForBoard = (
   boardId: string,
-  options?: UseQueryOptions<GetTasksResponse>
+  options?: UseQueryOptions<GetTasksResponse>,
 ) => {
   return useQuery({
     queryKey: taskKeys.board(boardId),
@@ -48,7 +48,7 @@ export const useTasksForBoard = (
 // Get tasks for a column
 export const useTasksForColumn = (
   columnId: string,
-  options?: UseQueryOptions<GetTasksResponse>
+  options?: UseQueryOptions<GetTasksResponse>,
 ) => {
   return useQuery({
     queryKey: taskKeys.column(columnId),
@@ -61,7 +61,7 @@ export const useTasksForColumn = (
 // Get single task
 export const useTask = (
   taskId: string,
-  options?: UseQueryOptions<GetTaskResponse>
+  options?: UseQueryOptions<GetTaskResponse>,
 ) => {
   return useQuery({
     queryKey: taskKeys.detail(taskId),

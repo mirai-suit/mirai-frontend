@@ -66,7 +66,7 @@ export const useOrgStore = create<OrgState>()(
       updateOrganization: (orgId, updates) =>
         set((state) => ({
           organizations: state.organizations.map((org) =>
-            org.id === orgId ? { ...org, ...updates } : org
+            org.id === orgId ? { ...org, ...updates } : org,
           ),
           currentOrg:
             state.currentOrg?.id === orgId
@@ -99,6 +99,6 @@ export const useOrgStore = create<OrgState>()(
     }),
     {
       name: "org-store",
-    }
-  )
+    },
+  ),
 );

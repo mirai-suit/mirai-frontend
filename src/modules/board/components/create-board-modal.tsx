@@ -72,7 +72,7 @@ export const CreateBoardModal: React.FC<CreateBoardModalProps> = ({
     setValue,
     watch,
     reset,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<BoardFormData>({
     resolver: zodResolver(createBoardSchema) as any,
     defaultValues: {
@@ -148,13 +148,9 @@ export const CreateBoardModal: React.FC<CreateBoardModalProps> = ({
       setCustomColumns([]);
       setSelectedTemplate("kanban");
 
-      // Small delay to ensure query invalidation has time to complete
-      setTimeout(() => {
-        // Navigate to the new board using React Router
-        if (user?.id) {
-          navigate(`/u/${user.id}/o/${organizationId}/b/${result.board.id}`);
-        }
-      }, 100);
+      if (user?.id) {
+        navigate(`/u/${user.id}/o/${organizationId}/b/${result.board.id}`);
+      }
     } catch {
       // Error handling is already done in the mutation
     }
@@ -349,7 +345,7 @@ export const CreateBoardModal: React.FC<CreateBoardModalProps> = ({
               </Button>
               <Button
                 color="primary"
-                isDisabled={!isValid || !organizationId}
+                isDisabled={!organizationId}
                 isLoading={createBoardMutation.isPending}
                 type="submit"
               >

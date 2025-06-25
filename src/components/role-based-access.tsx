@@ -39,6 +39,7 @@ export const WithPermission: React.FC<WithPermissionProps> = ({
   // If organization context is required but not available
   if (requireOrg && !currentOrg) {
     console.log(`❌ WithPermission: No org context for "${permission}"`);
+
     return <>{fallback}</>;
   }
 
@@ -47,7 +48,7 @@ export const WithPermission: React.FC<WithPermissionProps> = ({
 
   console.log(
     `${hasRequiredPermission ? "✅" : "❌"} WithPermission: "${permission}" result:`,
-    hasRequiredPermission
+    hasRequiredPermission,
   );
 
   return hasRequiredPermission ? <>{children}</> : <>{fallback}</>;
@@ -127,7 +128,7 @@ export const PermissionGate: React.FC<PermissionGateProps> = ({
     if (permissions.length === 0 && roles.length === 0) return true;
 
     const permissionResults = permissions.map((permission) =>
-      hasPermission(permission)
+      hasPermission(permission),
     );
     const roleResults = roles.map((role) => currentUserRole === role);
 

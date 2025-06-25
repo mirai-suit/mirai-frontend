@@ -146,14 +146,9 @@ export const EditBoardModal: React.FC<EditBoardModalProps> = ({
                   {...field}
                   label="Board Color"
                   placeholder="Select a color"
-                  selectedKeys={field.value ? [field.value] : []}
-                  variant="bordered"
-                  onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string;
-                    field.onChange(selectedKey);
-                  }}
                   renderValue={(_items) => {
                     const selectedColor = field.value;
+
                     return selectedColor ? (
                       <div className="flex items-center gap-2">
                         <div
@@ -174,6 +169,13 @@ export const EditBoardModal: React.FC<EditBoardModalProps> = ({
                         </span>
                       </div>
                     ) : null;
+                  }}
+                  selectedKeys={field.value ? [field.value] : []}
+                  variant="bordered"
+                  onSelectionChange={(keys) => {
+                    const selectedKey = Array.from(keys)[0] as string;
+
+                    field.onChange(selectedKey);
                   }}
                 >
                   {BOARD_COLORS.map((color) => (
@@ -224,7 +226,7 @@ export const EditBoardModal: React.FC<EditBoardModalProps> = ({
             </Button>
             <Button
               color="primary"
-            //   isDisabled={}
+              //   isDisabled={}
               isLoading={updateBoardMutation.isPending}
               type="submit"
             >

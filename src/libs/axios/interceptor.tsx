@@ -1,9 +1,10 @@
-import { useAuthStore } from "@/modules/auth/store";
 import axios, {
   AxiosError,
   AxiosInstance,
   InternalAxiosRequestConfig,
 } from "axios";
+
+import { useAuthStore } from "@/modules/auth/store";
 
 let isRefreshing = false;
 let failedQueue: { resolve: Function; reject: Function }[] = [];
@@ -26,12 +27,14 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = useAuthStore.getState().accessToken;
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // ✅ Response interceptor — handle 401 + retry
@@ -90,7 +93,7 @@ apiClient.interceptors.response.use(
           try {
             response = await axios.post(
               `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/refresh-token`,
-              { refreshToken }
+              { refreshToken },
             );
             break; // success
           } catch (err) {
@@ -125,7 +128,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

@@ -5,9 +5,9 @@ export default function ErrorPage() {
   return (
     <div className="h-full flex flex-col items-center justify-center gap-3">
       <img
-        src={""}
         alt="not found illustration"
         className="size-44 rounded-lg object-cover"
+        src={""}
       />
       <h1 className="text-3xl">Something went wrong</h1>
       <p className="text-default-500 text-base">

@@ -57,7 +57,7 @@ export const OrganizationProtectedRoute: React.FC<
   // Check permissions if specified
   if (requiredPermissions.length > 0 || requiredRoles.length > 0) {
     const permissionResults = requiredPermissions.map((permission) =>
-      hasPermission(permission)
+      hasPermission(permission),
     );
     const roleResults = requiredRoles.map((role) => currentUserRole === role);
 

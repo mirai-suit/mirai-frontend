@@ -23,6 +23,7 @@ import { TaskCard } from "../../task/components/task-card";
 import { EditColumnModal } from "./edit-column-modal";
 
 import { WithPermission } from "@/components/role-based-access";
+import { useOrgStore } from "@/store/useOrgStore";
 
 interface ColumnCardProps {
   column: Column;
@@ -34,11 +35,14 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
   tasks = [],
 }) => {
   const { boardId } = useParams();
+  const { hasPermission } = useOrgStore();
   const editModal = useDisclosure();
   const createTaskModal = useDisclosure();
   const [selectedColumn, setSelectedColumn] = React.useState<Column | null>(
     null
   );
+
+  const canEditColumn = hasPermission("createBoards");
 
   const handleEdit = () => {
     setSelectedColumn(column);
@@ -62,28 +66,30 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
             <span className="text-xs text-default-500">{tasks.length}</span>
           </div>
 
-          <Dropdown>
-            <DropdownTrigger>
-              <Button isIconOnly size="sm" variant="light">
-                <DotsThree size={16} />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu>
-              <DropdownItem
-                key="edit"
-                startContent={<PencilSimple size={16} />}
-                onPress={handleEdit}
-              >
-                Edit Column
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
+          {canEditColumn && (
+            <Dropdown>
+              <DropdownTrigger>
+                <Button isIconOnly size="sm" variant="light">
+                  <DotsThree size={16} />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu>
+                <DropdownItem
+                  key="edit"
+                  startContent={<PencilSimple size={16} />}
+                  onPress={handleEdit}
+                >
+                  Edit Column
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          )}
         </CardHeader>
 
         <CardBody className="pt-0">
           {/* Task list */}
           <ScrollShadow className="max-h-[calc(100vh-300px)]">
-            <AnimatePresence mode="popLayout" initial={false}>
+            <AnimatePresence initial={false} mode="popLayout">
               <div className="space-y-2 mb-4">
                 {tasks.map((task) => (
                   <TaskCard
@@ -100,12 +106,12 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
 
           {/* Add task button */}
           <WithPermission
-            permission="createBoards"
             fallback={
               <p className="text-xs text-center text-default-400 py-2">
                 No permission to add tasks
               </p>
             }
+            permission="createBoards"
           >
             <Button
               className="w-full"

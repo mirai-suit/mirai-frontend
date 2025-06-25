@@ -35,7 +35,7 @@ export const boardKeys = {
 // Get boards for organization
 export const useBoards = (
   organizationId: string,
-  options?: UseQueryOptions<GetBoardsResponse>
+  options?: UseQueryOptions<GetBoardsResponse>,
 ) => {
   return useQuery({
     queryKey: boardKeys.list(organizationId),
@@ -48,7 +48,7 @@ export const useBoards = (
 // Get single board
 export const useBoard = (
   boardId: string,
-  options?: UseQueryOptions<GetBoardResponse>
+  options?: UseQueryOptions<GetBoardResponse>,
 ) => {
   return useQuery({
     queryKey: boardKeys.detail(boardId),

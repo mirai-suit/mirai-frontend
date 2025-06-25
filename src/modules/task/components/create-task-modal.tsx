@@ -115,7 +115,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     <Modal isOpen={isOpen} placement="center" size="3xl" onClose={handleClose}>
       <ModalContent>
         <WithPermission
-          permission="createBoards"
           fallback={
             <div className="p-6 text-center">
               <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
@@ -125,6 +124,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               </p>
             </div>
           }
+          permission="createBoards"
         >
           <form onSubmit={handleSubmit(onSubmit)}>
             <ModalHeader className="flex flex-col gap-1">

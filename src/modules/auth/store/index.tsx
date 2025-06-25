@@ -14,7 +14,7 @@ type AuthActions = {
   setAuth: (
     user: User | null,
     accessToken: string | null,
-    refreshToken: string | null
+    refreshToken: string | null,
   ) => void;
   setUser: (user: User) => void;
   clearAuth: () => void;
@@ -71,6 +71,6 @@ export const useAuthStore = create<AuthStore>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
-    }
-  )
+    },
+  ),
 );

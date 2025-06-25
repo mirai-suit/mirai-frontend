@@ -1,8 +1,9 @@
 import React from "react";
 import { Avatar, Button, Card } from "@heroui/react";
 import { Gear, X, Circle } from "@phosphor-icons/react";
-import { Notification } from "../types/sidebar.type";
 import { motion } from "framer-motion";
+
+import { Notification } from "../types/sidebar.type";
 
 /**
  * Props interface for the NotificationPanel component
@@ -20,7 +21,7 @@ interface NotificationPanelProps {
 
 /**
  * NotificationPanel Component
- * 
+ *
  * A comprehensive notification panel that displays a list of notifications with the following features:
  * - Shows unread notification count in the header
  * - Allows marking individual notifications as read by clicking
@@ -37,7 +38,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
 }) => {
   // Calculate the number of unread notifications for the badge
   const unreadCount = notifications.filter(
-    (notification) => !notification.isRead
+    (notification) => !notification.isRead,
   ).length;
 
   return (
@@ -55,16 +56,16 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
             </span>
           )}
         </div>
-        
+
         {/* Right side: Action buttons */}
         <div className="flex items-center gap-2">
           {/* Show "Mark all as read" button only if there are unread notifications */}
           {unreadCount > 0 && (
             <Button
+              className="text-xs text-primary"
               size="sm"
               variant="light"
               onPress={onMarkAllAsRead}
-              className="text-xs text-primary"
             >
               Mark all as read
             </Button>
@@ -72,10 +73,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
           {/* Close button - always visible */}
           <Button
             isIconOnly
+            aria-label="Close notifications"
             size="sm"
             variant="light"
             onPress={onClose}
-            aria-label="Close notifications"
           >
             <X size={16} />
           </Button>
@@ -95,20 +96,20 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
           notifications.map((notification) => (
             <motion.div
               key={notification.id}
-              initial={{ opacity: 0.8 }}
               animate={{ opacity: 1 }}
-              /* Dynamic styling: unread notifications have background highlight */
               className={`p-4 border-b border-divider hover:bg-default-50 cursor-pointer
                         ${!notification.isRead ? "bg-default-50" : ""}`}
               /* Mark notification as read when clicked */
+              initial={{ opacity: 0.8 }}
+              /* Dynamic styling: unread notifications have background highlight */
               onClick={() => onMarkAsRead(notification.id)}
             >
               <div className="flex gap-3">
                 {/* User avatar for the notification */}
                 <Avatar
-                  src={notification.avatar}
-                  size="sm"
                   className="flex-shrink-0"
+                  size="sm"
+                  src={notification.avatar}
                 />
                 <div className="flex-1 min-w-0">
                   {/* Top row: notification content and read status indicator */}
@@ -126,13 +127,13 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                     {/* Blue dot indicator for unread notifications */}
                     {!notification.isRead && (
                       <Circle
+                        className="text-primary mt-1 flex-shrink-0"
                         size={8}
                         weight="fill"
-                        className="text-primary mt-1 flex-shrink-0"
                       />
                     )}
                   </div>
-                  
+
                   {/* Bottom row: timestamp and action buttons (if actionable) */}
                   <div className="flex items-center justify-between mt-2">
                     {/* When the notification was created/received */}
@@ -144,17 +145,17 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                     {notification.actionable && (
                       <div className="flex gap-2">
                         <Button
-                          size="sm"
-                          color="primary"
-                          variant="flat"
                           className="text-xs py-1 px-2 h-auto min-w-0"
+                          color="primary"
+                          size="sm"
+                          variant="flat"
                         >
                           Accept
                         </Button>
                         <Button
+                          className="text-xs py-1 px-2 h-auto min-w-0"
                           size="sm"
                           variant="light"
-                          className="text-xs py-1 px-2 h-auto min-w-0"
                         >
                           Decline
                         </Button>
@@ -173,15 +174,15 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
       {notifications.length > 0 && (
         <div className="p-3 flex items-center justify-between">
           {/* Link to view all notifications in a dedicated page */}
-          <Button variant="light" size="sm" className="text-primary text-xs">
+          <Button className="text-primary text-xs" size="sm" variant="light">
             View all notifications
           </Button>
           {/* Settings button for notification preferences */}
           <Button
             isIconOnly
-            variant="light"
-            size="sm"
             aria-label="Notification settings"
+            size="sm"
+            variant="light"
           >
             <Gear size={16} />
           </Button>
