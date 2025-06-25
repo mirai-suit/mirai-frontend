@@ -18,6 +18,8 @@ import { updateColumnSchema, UpdateColumnForm } from "../validations";
 import { useUpdateColumn, useDeleteColumn } from "../api";
 import { COLUMN_COLORS, Column } from "../types";
 
+import { WithPermission } from "@/components/role-based-access";
+
 interface EditColumnModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -171,15 +173,24 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
                 Deleting this column will permanently remove it and all its
                 tasks. This action cannot be undone.
               </p>
-              <Button
-                color="danger"
-                variant="flat"
-                size="sm"
-                isLoading={deleteColumnMutation.isPending}
-                onPress={handleDelete}
+              <WithPermission
+                permission="deleteBoards"
+                fallback={
+                  <Button color="danger" variant="flat" size="sm" isDisabled>
+                    Delete Column (No permission)
+                  </Button>
+                }
               >
-                Delete Column
-              </Button>
+                <Button
+                  color="danger"
+                  variant="flat"
+                  size="sm"
+                  isLoading={deleteColumnMutation.isPending}
+                  onPress={handleDelete}
+                >
+                  Delete Column
+                </Button>
+              </WithPermission>
             </div>
           </ModalBody>
           <ModalFooter>

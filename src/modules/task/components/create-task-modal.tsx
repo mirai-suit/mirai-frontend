@@ -1,4 +1,6 @@
 import React from "react";
+import { parseDate, getLocalTimeZone } from "@internationalized/date";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Modal,
   ModalContent,
@@ -10,6 +12,8 @@ import {
   Textarea,
   Select,
   SelectItem,
+  Switch,
+  DateRangePicker,
 } from "@heroui/react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +26,8 @@ import {
 } from "../validations";
 import { type CreateTaskRequest } from "../types";
 import { useCreateTask } from "../api";
+
+import { WithPermission } from "@/components/role-based-access";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -63,6 +69,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     mode: "onChange",
   });
 
+  // Watch the status field to conditionally show custom status input
+  const selectedStatus = watch("status");
+
   const onSubmit = async (data: CreateTaskFormInput) => {
     try {
       // Convert form data to API request format
@@ -70,17 +79,24 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         title: data.title,
         description: data.description,
         status: data.status,
-        dueDate: data.dueDate,
-        priority:
-          typeof data.priority === "string"
-            ? (parseInt(data.priority) as 1 | 2 | 3 | 4 | 5)
-            : (data.priority as 1 | 2 | 3 | 4 | 5 | undefined),
-        order: data.order,
-        isRecurring: data.isRecurring,
+        customStatus: data.customStatus,
+        startDate: data.dateRange?.start
+          ? parseDate(data.dateRange.start)
+              .toDate(getLocalTimeZone())
+              .toISOString()
+          : undefined,
+        dueDate: data.dateRange?.end
+          ? parseDate(data.dateRange.end)
+              .toDate(getLocalTimeZone())
+              .toISOString()
+          : undefined,
+        priority: data.priority,
+        order: data.order || 0,
+        isRecurring: data.isRecurring || false,
         boardId: data.boardId,
         columnId: data.columnId,
         teamId: data.teamId,
-        assigneeIds: data.assigneeIds,
+        assigneeIds: data.assigneeIds || [],
       };
 
       await createTaskMutation.mutateAsync(requestData);
@@ -96,126 +112,211 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} placement="center" size="2xl" onClose={handleClose}>
+    <Modal isOpen={isOpen} placement="center" size="3xl" onClose={handleClose}>
       <ModalContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader className="flex flex-col gap-1">
-            Create New Task
-          </ModalHeader>
-
-          <ModalBody className="gap-4">
-            {/* Task Title */}
-            <Controller
-              control={control}
-              name="title"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  errorMessage={errors.title?.message}
-                  isInvalid={!!errors.title}
-                  label="Task Title"
-                  placeholder="Enter task title"
-                  variant="flat"
-                />
-              )}
-            />
-
-            {/* Task Description */}
-            <Controller
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <Textarea
-                  {...field}
-                  errorMessage={errors.description?.message}
-                  isInvalid={!!errors.description}
-                  label="Description"
-                  maxRows={6}
-                  minRows={3}
-                  placeholder="Enter task description (optional)"
-                  variant="flat"
-                />
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Task Status */}
-              <Controller
-                control={control}
-                name="status"
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    label="Status"
-                    placeholder="Select status"
-                    selectedKeys={field.value ? [field.value] : []}
-                    variant="flat"
-                    onSelectionChange={(keys) => {
-                      const selectedKey = Array.from(keys)[0] as string;
-
-                      field.onChange(selectedKey);
-                    }}
-                  >
-                    {TASK_STATUSES.map((status) => (
-                      <SelectItem key={status.value}>{status.label}</SelectItem>
-                    ))}
-                  </Select>
-                )}
-              />
-
-              {/* Task Priority */}
-              <Controller
-                control={control}
-                name="priority"
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    errorMessage={errors.priority?.message}
-                    isInvalid={!!errors.priority}
-                    label="Priority"
-                    placeholder="Select priority"
-                    selectedKeys={field.value ? [field.value.toString()] : []}
-                    variant="flat"
-                    onSelectionChange={(keys) => {
-                      const selectedKey = Array.from(keys)[0] as string;
-
-                      // Pass the string value directly - Zod preprocessing will handle conversion
-                      field.onChange(selectedKey || undefined);
-                    }}
-                  >
-                    {TASK_PRIORITIES.map((priority) => (
-                      <SelectItem key={priority.value.toString()}>
-                        {priority.label}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                )}
-              />
-            </div>
-
-            {/* Future Features Notice */}
-            <div className="p-4 bg-default-50 rounded-lg">
+        <WithPermission
+          permission="createBoards"
+          fallback={
+            <div className="p-6 text-center">
+              <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
               <p className="text-sm text-default-500">
-                💡 <strong>Coming Soon:</strong> Due date picker, assignee
-                selection, and recurring tasks will be available in the next
-                iteration.
+                You don&apos;t have permission to create tasks in this
+                organization.
               </p>
             </div>
-          </ModalBody>
+          }
+        >
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <ModalHeader className="flex flex-col gap-1">
+              Create New Task
+            </ModalHeader>
 
-          <ModalFooter>
-            <Button color="danger" variant="light" onPress={handleClose}>
-              Cancel
-            </Button>
-            <Button
-              color="primary"
-              isLoading={createTaskMutation.isPending}
-              type="submit"
-            >
-              Create Task
-            </Button>
-          </ModalFooter>
-        </form>
+            <ModalBody className="gap-4">
+              {/* Task Title */}
+              <Controller
+                control={control}
+                name="title"
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    errorMessage={errors.title?.message}
+                    isInvalid={!!errors.title}
+                    label="Task Title"
+                    placeholder="Enter task title"
+                    size="sm"
+                    variant="flat"
+                  />
+                )}
+              />
+
+              {/* Task Description */}
+              <Controller
+                control={control}
+                name="description"
+                render={({ field }) => (
+                  <Textarea
+                    {...field}
+                    errorMessage={errors.description?.message}
+                    isInvalid={!!errors.description}
+                    label="Description"
+                    maxRows={4}
+                    minRows={2}
+                    placeholder="Enter task description (optional)"
+                    size="sm"
+                    variant="flat"
+                  />
+                )}
+              />
+
+              {/* First Row - Status, Priority, Recurring */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Task Status */}
+                <Controller
+                  control={control}
+                  name="status"
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label="Status"
+                      placeholder="Select status"
+                      selectedKeys={field.value ? [field.value] : []}
+                      size="sm"
+                      variant="flat"
+                      onSelectionChange={(keys) => {
+                        const selectedKey = Array.from(keys)[0] as string;
+
+                        field.onChange(selectedKey);
+                      }}
+                    >
+                      {TASK_STATUSES.map((status) => (
+                        <SelectItem key={status.value}>
+                          {status.label}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+
+                {/* Task Priority */}
+                <Controller
+                  control={control}
+                  name="priority"
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label="Priority"
+                      placeholder="Select priority"
+                      selectedKeys={field.value ? [field.value] : []}
+                      size="sm"
+                      variant="flat"
+                      onSelectionChange={(keys) => {
+                        const selectedKey = Array.from(keys)[0] as string;
+
+                        field.onChange(selectedKey);
+                      }}
+                    >
+                      {TASK_PRIORITIES.map((priority) => (
+                        <SelectItem key={priority.value}>
+                          {priority.label}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+
+                {/* Recurring Task */}
+                <Controller
+                  control={control}
+                  name="isRecurring"
+                  render={({ field }) => (
+                    <div className="flex items-center gap-2 pt-2">
+                      <Switch
+                        isSelected={field.value}
+                        size="sm"
+                        onValueChange={field.onChange}
+                      >
+                        Recurring Task
+                      </Switch>
+                    </div>
+                  )}
+                />
+              </div>
+
+              {/* Custom Status Field with Animation */}
+              <AnimatePresence>
+                {selectedStatus === "CUSTOM" && (
+                  <motion.div
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    initial={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <Controller
+                      control={control}
+                      name="customStatus"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          errorMessage={errors.customStatus?.message}
+                          isInvalid={!!errors.customStatus}
+                          label="Custom Status"
+                          placeholder="Enter custom status name"
+                          size="sm"
+                          variant="flat"
+                        />
+                      )}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Date Range Section - HeroUI DateRangePicker */}
+              <Controller
+                control={control}
+                name="dateRange"
+                render={({ field }) => (
+                  <DateRangePicker
+                    description="Select start and end dates for the task"
+                    label="Task Duration"
+                    size="sm"
+                    value={
+                      field.value?.start && field.value?.end
+                        ? {
+                            start: parseDate(field.value.start) as any,
+                            end: parseDate(field.value.end) as any,
+                          }
+                        : undefined
+                    }
+                    variant="flat"
+                    onChange={(range: any) => {
+                      if (range && range.start && range.end) {
+                        field.onChange({
+                          start: range.start.toString(),
+                          end: range.end.toString(),
+                        });
+                      } else {
+                        field.onChange(undefined);
+                      }
+                    }}
+                  />
+                )}
+              />
+            </ModalBody>
+
+            <ModalFooter>
+              <Button color="danger" variant="light" onPress={handleClose}>
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                isLoading={createTaskMutation.isPending}
+                type="submit"
+              >
+                Create Task
+              </Button>
+            </ModalFooter>
+          </form>
+        </WithPermission>
       </ModalContent>
     </Modal>
   );

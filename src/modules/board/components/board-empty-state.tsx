@@ -2,6 +2,8 @@ import React from "react";
 import { Button } from "@heroui/react";
 import { Folder } from "@phosphor-icons/react";
 
+import { CanCreateBoards } from "@/components/role-based-access";
+
 interface BoardEmptyStateProps {
   activeFilter: "recent" | "all" | "archived";
   onCreateBoard: () => void;
@@ -19,14 +21,22 @@ export const BoardEmptyState: React.FC<BoardEmptyStateProps> = ({
           {activeFilter === "archived" ? "No archived boards" : "No boards yet"}
         </p>
         {activeFilter !== "archived" && (
-          <Button
-            color="primary"
-            size="sm"
-            variant="flat"
-            onPress={onCreateBoard}
+          <CanCreateBoards
+            fallback={
+              <p className="text-xs text-default-400">
+                You don&apos;t have permission to create boards
+              </p>
+            }
           >
-            Create your first board
-          </Button>
+            <Button
+              color="primary"
+              size="sm"
+              variant="flat"
+              onPress={onCreateBoard}
+            >
+              Create your first board
+            </Button>
+          </CanCreateBoards>
         )}
       </div>
     </div>

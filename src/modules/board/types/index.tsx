@@ -69,8 +69,7 @@ export interface Board {
   isDefault: boolean;
   createdAt: string;
   updatedAt: string;
-  columns?: Column[];
-  tasks?: Task[];
+  // Remove columns and tasks - they should be fetched separately
   team?: Team[];
   accessList?: BoardAccess[];
 }

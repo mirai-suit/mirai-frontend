@@ -44,7 +44,6 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   onCollapse,
   onToggleMobile,
 }) => {
-  const [notificationCount, setNotificationCount] = React.useState(3);
   const [isNotificationOpen, setIsNotificationOpen] = React.useState(false);
   const user = useAuthStore((state) => state.user);
   const [notifications, setNotifications] = React.useState<Notification[]>([
@@ -87,14 +86,14 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       prev.map((notification) =>
         notification.id === id
           ? { ...notification, isRead: true }
-          : notification,
-      ),
+          : notification
+      )
     );
   };
 
   const handleMarkAllAsRead = () => {
     setNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, isRead: true })),
+      prev.map((notification) => ({ ...notification, isRead: true }))
     );
   };
 

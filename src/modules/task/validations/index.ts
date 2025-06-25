@@ -1,47 +1,53 @@
 import { z } from "zod";
 
-// Task Status Enum
+// Task Status Enum - matching backend
 export const TaskStatusEnum = z.enum([
-  "TODO",
+  "NOT_STARTED",
   "IN_PROGRESS",
-  "IN_REVIEW",
-  "DONE",
   "BLOCKED",
+  "UNDER_REVIEW",
+  "COMPLETED",
   "CANCELLED",
+  "CUSTOM",
 ]);
 
-// Task Priority Enum (1-5, 1 being highest)
-export const TaskPriorityEnum = z.number().int().min(1).max(5);
+// Task Priority Enum - matching backend
+export const TaskPriorityEnum = z.enum([
+  "LOWEST",
+  "LOW",
+  "MEDIUM",
+  "HIGH",
+  "HIGHEST",
+]);
 
-// Task Priority Enum with string preprocessing for forms
-export const TaskPriorityFormEnum = z.preprocess((val) => {
-  if (typeof val === "string" && val !== "") {
-    const num = parseInt(val, 10);
-
-    return isNaN(num) ? undefined : num;
-  }
-
-  return val;
-}, z.number().int().min(1).max(5).optional());
+// Simple date range schema for DateRangePicker
+export const dateRangeSchema = z
+  .object({
+    start: z.string().optional(),
+    end: z.string().optional(),
+  })
+  .optional();
 
 // Base Task Schema
 export const baseTaskSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
   description: z.string().max(1000, "Description too long").optional(),
-  status: TaskStatusEnum.default("TODO"),
-  dueDate: z.string().datetime().optional(),
-  priority: TaskPriorityEnum.optional(),
-  order: z.number().int().min(0).optional(),
+  status: TaskStatusEnum.default("NOT_STARTED"),
+  customStatus: z.string().max(50, "Custom status too long").optional(),
+  dateRange: dateRangeSchema,
+  priority: TaskPriorityEnum.default("MEDIUM"),
+  order: z.number().int().min(0).default(0),
   isRecurring: z.boolean().default(false),
 });
 
-// Create Task Schema for forms (simpler approach)
+// Create Task Schema for forms
 export const createTaskFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
   description: z.string().max(1000, "Description too long").optional(),
   status: TaskStatusEnum.optional(),
-  dueDate: z.string().datetime().optional(),
-  priority: z.union([z.string(), z.number()]).optional(),
+  customStatus: z.string().max(50, "Custom status too long").optional(),
+  dateRange: dateRangeSchema,
+  priority: TaskPriorityEnum.optional(),
   order: z.number().int().min(0).optional(),
   isRecurring: z.boolean().optional(),
   boardId: z.string().uuid("Invalid board ID"),
@@ -55,9 +61,11 @@ export const createTaskSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
   description: z.string().max(1000, "Description too long").optional(),
   status: TaskStatusEnum.optional(),
+  customStatus: z.string().max(50, "Custom status too long").optional(),
+  startDate: z.string().datetime().optional(),
   dueDate: z.string().datetime().optional(),
-  priority: TaskPriorityEnum,
-  order: z.number().int().min(0).optional(),
+  priority: TaskPriorityEnum.optional(),
+  order: z.number().int().min(0).default(0),
   isRecurring: z.boolean().optional(),
   boardId: z.string().uuid("Invalid board ID"),
   columnId: z.string().uuid("Invalid column ID"),
@@ -74,6 +82,8 @@ export const updateTaskSchema = z.object({
     .optional(),
   description: z.string().max(1000, "Description too long").optional(),
   status: TaskStatusEnum.optional(),
+  customStatus: z.string().max(50, "Custom status too long").optional(),
+  startDate: z.string().datetime().optional(),
   dueDate: z.string().datetime().optional(),
   priority: TaskPriorityEnum.optional(),
   order: z.number().int().min(0).optional(),
@@ -99,38 +109,52 @@ export const assignUsersSchema = z.object({
 
 // Task Query Schema
 export const taskQuerySchema = z.object({
-  page: z.number().int().min(1).optional().default(1),
-  limit: z.number().int().min(1).max(100).optional().default(20),
+  boardId: z.string().uuid("Invalid board ID").optional(),
+  columnId: z.string().uuid("Invalid column ID").optional(),
+  assigneeId: z.string().uuid("Invalid assignee ID").optional(),
   status: TaskStatusEnum.optional(),
   priority: TaskPriorityEnum.optional(),
-  assignee: z.string().uuid("Invalid assignee ID").optional(),
   dueDate: z.string().datetime().optional(),
+  page: z
+    .string()
+    .optional()
+    .default("1")
+    .transform(Number)
+    .pipe(z.number().int().min(1)),
+  limit: z
+    .string()
+    .optional()
+    .default("20")
+    .transform(Number)
+    .pipe(z.number().int().min(1).max(100)),
   search: z.string().max(255, "Search term too long").optional(),
 });
 
-// Export Types
-export type CreateTaskInput = z.infer<typeof createTaskSchema>;
+// Export types
 export type CreateTaskFormInput = z.infer<typeof createTaskFormSchema>;
+export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type MoveTaskInput = z.infer<typeof moveTaskSchema>;
 export type AssignUsersInput = z.infer<typeof assignUsersSchema>;
 export type TaskQueryInput = z.infer<typeof taskQuerySchema>;
+export type DateRange = z.infer<typeof dateRangeSchema>;
 
-// Priority Options for UI
+// Priority Options for UI - FIXED MAPPING!
 export const TASK_PRIORITIES = [
-  { value: 1, label: "Highest", color: "danger" },
-  { value: 2, label: "High", color: "warning" },
-  { value: 3, label: "Medium", color: "primary" },
-  { value: 4, label: "Low", color: "success" },
-  { value: 5, label: "Lowest", color: "default" },
+  { value: "HIGHEST", label: "Highest", color: "danger" },
+  { value: "HIGH", label: "High", color: "warning" },
+  { value: "MEDIUM", label: "Medium", color: "primary" },
+  { value: "LOW", label: "Low", color: "success" },
+  { value: "LOWEST", label: "Lowest", color: "default" },
 ] as const;
 
 // Status Options for UI
 export const TASK_STATUSES = [
-  { value: "TODO", label: "To Do", color: "default" },
+  { value: "NOT_STARTED", label: "Not Started", color: "default" },
   { value: "IN_PROGRESS", label: "In Progress", color: "primary" },
-  { value: "IN_REVIEW", label: "In Review", color: "warning" },
-  { value: "DONE", label: "Done", color: "success" },
   { value: "BLOCKED", label: "Blocked", color: "danger" },
+  { value: "UNDER_REVIEW", label: "Under Review", color: "warning" },
+  { value: "COMPLETED", label: "Completed", color: "success" },
   { value: "CANCELLED", label: "Cancelled", color: "default" },
+  { value: "CUSTOM", label: "Custom", color: "secondary" },
 ] as const;

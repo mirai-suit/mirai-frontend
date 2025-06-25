@@ -8,7 +8,6 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useBoards, useArchiveBoard, useDeleteBoard } from "../api";
 import { useBoardStore } from "../store";
-
 import { useAuthStore } from "../../auth/store";
 import { BoardCard } from "./board-card";
 import { BoardFilters } from "./board-filters";
@@ -18,6 +17,8 @@ import { BoardListSkeleton } from "./board-list-skeleton";
 import { CollapsedBoardSkeleton } from "./collapsed-board-skeleton";
 import { DeleteBoardModal } from "./delete-board-modal";
 import { EditBoardModal } from "./edit-board-modal";
+
+import { CanCreateBoards } from "@/components/role-based-access";
 
 interface BoardListProps {
   organizationId: string;
@@ -160,17 +161,19 @@ export const BoardList: React.FC<BoardListProps> = ({
     return (
       <div className="px-2 py-2">
         {/* Collapsed add button */}
-        <Tooltip content="Create Board" placement="right">
-          <Button
-            isIconOnly
-            className="w-10 h-10 mx-auto mb-2"
-            size="sm"
-            variant="light"
-            onPress={handleCreateBoard}
-          >
-            <Plus size={16} />
-          </Button>
-        </Tooltip>
+        <CanCreateBoards fallback={null}>
+          <Tooltip content="Create Board" placement="right">
+            <Button
+              isIconOnly
+              className="w-10 h-10 mx-auto mb-2"
+              size="sm"
+              variant="light"
+              onPress={handleCreateBoard}
+            >
+              <Plus size={16} />
+            </Button>
+          </Tooltip>
+        </CanCreateBoards>
 
         {/* Collapsed board list */}
         <div className="space-y-1">
@@ -230,15 +233,17 @@ export const BoardList: React.FC<BoardListProps> = ({
               <CaretUp size={12} />
             </Button>
           )}
-          <Button
-            isIconOnly
-            className="w-6 h-6"
-            size="sm"
-            variant="light"
-            onPress={handleCreateBoard}
-          >
-            <Plus size={14} />
-          </Button>
+          <CanCreateBoards fallback={null}>
+            <Button
+              isIconOnly
+              className="w-6 h-6"
+              size="sm"
+              variant="light"
+              onPress={handleCreateBoard}
+            >
+              <Plus size={14} />
+            </Button>
+          </CanCreateBoards>
         </div>
       </div>
 

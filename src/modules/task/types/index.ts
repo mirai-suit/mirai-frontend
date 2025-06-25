@@ -1,14 +1,15 @@
-// Task Status Enum
+// Task Status Enum - matching backend
 export type TaskStatus =
-  | "TODO"
+  | "NOT_STARTED"
   | "IN_PROGRESS"
-  | "IN_REVIEW"
-  | "DONE"
   | "BLOCKED"
-  | "CANCELLED";
+  | "UNDER_REVIEW"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "CUSTOM";
 
-// Task Priority (1-5, 1 being highest)
-export type TaskPriority = 1 | 2 | 3 | 4 | 5;
+// Task Priority Enum - matching backend
+export type TaskPriority = "LOWEST" | "LOW" | "MEDIUM" | "HIGH" | "HIGHEST";
 
 // Task Assignee
 export interface TaskAssignee {
@@ -47,9 +48,11 @@ export interface Task {
   title: string;
   description?: string;
   status: TaskStatus;
+  customStatus?: string;
+  startDate?: string;
   dueDate?: string;
   priority?: TaskPriority;
-  order?: number;
+  order: number;
   isRecurring: boolean;
   boardId: string;
   columnId: string;
@@ -72,6 +75,8 @@ export interface CreateTaskRequest {
   title: string;
   description?: string;
   status?: TaskStatus;
+  customStatus?: string;
+  startDate?: string;
   dueDate?: string;
   priority?: TaskPriority;
   order?: number;
@@ -86,6 +91,8 @@ export interface UpdateTaskRequest {
   title?: string;
   description?: string;
   status?: TaskStatus;
+  customStatus?: string;
+  startDate?: string;
   dueDate?: string;
   priority?: TaskPriority;
   order?: number;

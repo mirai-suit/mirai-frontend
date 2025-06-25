@@ -13,12 +13,16 @@ import {
   ScrollShadow,
 } from "@heroui/react";
 import { DotsThree, Plus, PencilSimple } from "@phosphor-icons/react";
+import { AnimatePresence } from "framer-motion";
 
-import { Column, Task } from "../../board/types";
+import { Column } from "../../board/types";
+import { Task } from "../../task/types";
 import { CreateTaskModal } from "../../task/components/create-task-modal";
 import { TaskCard } from "../../task/components/task-card";
 
 import { EditColumnModal } from "./edit-column-modal";
+
+import { WithPermission } from "@/components/role-based-access";
 
 interface ColumnCardProps {
   column: Column;
@@ -79,29 +83,40 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
         <CardBody className="pt-0">
           {/* Task list */}
           <ScrollShadow className="max-h-[calc(100vh-300px)]">
-            <div className="space-y-2 mb-4">
-              {tasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onClick={() => {
-                    // TODO: Implement task edit/view functionality
-                  }}
-                />
-              ))}
-            </div>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <div className="space-y-2 mb-4">
+                {tasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => {
+                      // TODO: Implement task edit/view functionality
+                    }}
+                  />
+                ))}
+              </div>
+            </AnimatePresence>
           </ScrollShadow>
 
           {/* Add task button */}
-          <Button
-            className="w-full"
-            size="sm"
-            startContent={<Plus size={16} />}
-            variant="light"
-            onPress={handleAddTask}
+          <WithPermission
+            permission="createBoards"
+            fallback={
+              <p className="text-xs text-center text-default-400 py-2">
+                No permission to add tasks
+              </p>
+            }
           >
-            Add a task
-          </Button>
+            <Button
+              className="w-full"
+              size="sm"
+              startContent={<Plus size={16} />}
+              variant="light"
+              onPress={handleAddTask}
+            >
+              Add a task
+            </Button>
+          </WithPermission>
         </CardBody>
       </Card>
 

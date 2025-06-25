@@ -48,12 +48,8 @@ export const BoardCard: React.FC<BoardCardProps> = ({
           <div className="flex-1 text-left">
             <p className="text-xs font-medium truncate">{board.title}</p>
             <div className="flex items-center gap-2 text-[0.70rem] text-default-400">
-              <span>{board.columns?.length || 0} columns</span>
-              <span>•</span>
-              <span>{board.tasks?.length || 0} tasks</span>
               {board.accessList && board.accessList.length > 0 && (
                 <>
-                  <span>•</span>
                   <span className="flex items-center gap-1">
                     <Users size={10} />
                     {board.accessList.length}

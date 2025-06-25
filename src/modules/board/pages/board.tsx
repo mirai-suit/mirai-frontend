@@ -17,6 +17,10 @@ import { ColumnCard } from "../../column/components/column-card";
 import { ColumnSkeleton } from "../../column/components/column-skeleton";
 import { CreateColumnModal } from "../../column/components/create-column-modal";
 import { useGetColumnsForBoard } from "../../column/api";
+import { useTasksForBoard } from "../../task/api";
+
+import { WithPermission } from "@/components/role-based-access";
+import { useOrgStore } from "@/store/useOrgStore";
 
 interface BoardPageProps {
   // Add props if needed
@@ -28,12 +32,27 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
   const { setCurrentBoard } = useBoardStore();
   const createColumnModal = useDisclosure();
 
+  // Debug: Add org store to check permissions
+  const { currentUserRole, hasPermission, currentOrg } = useOrgStore();
+
   const { data: boardResponse, isLoading, isError, error } = useBoard(boardId!);
   const { data: columnsResponse, isLoading: isLoadingColumns } =
     useGetColumnsForBoard(boardId!);
+  const { data: tasksResponse } = useTasksForBoard(boardId!);
 
   const board = boardResponse?.board;
   const columns = columnsResponse?.columns || [];
+  const tasks = tasksResponse?.tasks || [];
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log("🔍 Board Page Debug Info:");
+    console.log("Current Org:", currentOrg);
+    console.log("Current User Role:", currentUserRole);
+    console.log("Can Create Boards:", hasPermission("createBoards"));
+    console.log("Org ID from URL:", orgId);
+    console.log("Board ID:", boardId);
+  }, [currentOrg, currentUserRole, hasPermission, orgId, boardId]);
 
   // Update current board in store when data changes
   React.useEffect(() => {
@@ -161,10 +180,10 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
               {columns
                 .sort((a, b) => a.order - b.order)
                 .map((column, index) => {
-                  const columnTasks =
-                    board?.tasks?.filter(
-                      (task) => task.columnId === column.id
-                    ) || [];
+                  // Filter tasks for this column from the tasks API response
+                  const columnTasks = tasks.filter(
+                    (task) => task.columnId === column.id
+                  );
 
                   return (
                     <motion.div
@@ -191,14 +210,23 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
               >
                 <Card className="w-64 h-20">
                   <CardBody className="flex items-center justify-center">
-                    <Button
-                      color="default"
-                      variant="light"
-                      startContent={<Plus size={16} />}
-                      onPress={createColumnModal.onOpen}
+                    <WithPermission
+                      fallback={
+                        <p className="text-xs text-default-400">
+                          No permission to add columns
+                        </p>
+                      }
+                      permission="createBoards"
                     >
-                      Add another column
-                    </Button>
+                      <Button
+                        color="default"
+                        startContent={<Plus size={16} />}
+                        variant="light"
+                        onPress={createColumnModal.onOpen}
+                      >
+                        Add another column
+                      </Button>
+                    </WithPermission>
                   </CardBody>
                 </Card>
               </motion.div>
@@ -208,14 +236,23 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
           <div className="flex h-full items-center justify-center">
             <div className="text-center space-y-4">
               <p className="text-default-500">No columns in this board yet</p>
-              <Button
-                color="primary"
-                variant="flat"
-                startContent={<Plus size={16} />}
-                onPress={createColumnModal.onOpen}
+              <WithPermission
+                permission="createBoards"
+                fallback={
+                  <p className="text-xs text-default-400">
+                    You don&apos;t have permission to create columns
+                  </p>
+                }
               >
-                Add your first column
-              </Button>
+                <Button
+                  color="primary"
+                  variant="flat"
+                  startContent={<Plus size={16} />}
+                  onPress={createColumnModal.onOpen}
+                >
+                  Add your first column
+                </Button>
+              </WithPermission>
             </div>
           </div>
         )}

@@ -19,9 +19,23 @@ export default function DashboardLayout() {
   // Get URL parameters
   const { orgId } = useParams();
 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { isAuthenticated, user, setUser } = useAuthStore((state) => state);
+  const { isCreateBoardModalOpen, closeCreateBoardModal } = useBoardStore();
+  const { setCurrentOrgId, setOrganizations } = useOrgStore();
+
   // Fetch organizations using TanStack Query
   const { data: organizations = [], isLoading: isLoadingOrgs } =
     useOrganizations();
+
+  // Sync organizations with the global store
+  React.useEffect(() => {
+    if (organizations.length > 0) {
+      setOrganizations(organizations);
+      console.log("✅ Updated organizations in store:", organizations);
+    }
+  }, [organizations, setOrganizations]);
 
   const handleToggleMobile = () => {
     setIsMobileOpen(!isMobileOpen);
@@ -41,12 +55,6 @@ export default function DashboardLayout() {
     navigate(`/u/${user.id}/o/${orgId}`);
   };
 
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const { isAuthenticated, user, setUser } = useAuthStore((state) => state);
-  const { isCreateBoardModalOpen, closeCreateBoardModal } = useBoardStore();
-  const { setCurrentOrgId } = useOrgStore();
-
   useEffect(() => {
     if (pathname === "/u" && isAuthenticated) {
       navigate("/u/" + user?.id);
@@ -55,16 +63,30 @@ export default function DashboardLayout() {
 
   // Sync selectedOrg with URL parameter
   useEffect(() => {
+    console.log("🔍 Dashboard Debug Info:");
+    console.log("Organizations:", organizations);
+    console.log("Org ID from URL:", orgId);
+    console.log("Is Loading Orgs:", isLoadingOrgs);
+
     if (orgId && organizations.some((org) => org.id === orgId)) {
       setSelectedOrg(orgId);
       setCurrentOrgId(orgId); // Sync with global store
+      console.log("✅ Set current org to:", orgId);
     } else if (organizations.length > 0 && !orgId) {
       // If no orgId in URL, navigate to the first organization
       if (user?.id) {
         navigate(`/u/${user.id}/o/${organizations[0].id}`);
+        console.log("✅ Navigating to first org:", organizations[0].id);
       }
     }
-  }, [orgId, organizations, user?.id, navigate, setCurrentOrgId]);
+  }, [
+    orgId,
+    organizations,
+    user?.id,
+    navigate,
+    setCurrentOrgId,
+    isLoadingOrgs,
+  ]);
 
   const handleOrgCreated = () => {
     // Update the user's organization count to hide the modal

@@ -21,17 +21,15 @@ import {
 import { addToast } from "@heroui/react";
 
 import { taskService } from "../services";
+import { boardKeys } from "../../board/api";
+import { columnKeys } from "../../column/api";
 
-// Query Keys
+// Query Keys - Consistent Pattern: [entity, scope, identifier]
 export const taskKeys = {
   all: ["tasks"] as const,
-  lists: () => [...taskKeys.all, "list"] as const,
-  boardTasks: (boardId: string) =>
-    [...taskKeys.lists(), "board", boardId] as const,
-  columnTasks: (columnId: string) =>
-    [...taskKeys.lists(), "column", columnId] as const,
-  details: () => [...taskKeys.all, "detail"] as const,
-  detail: (taskId: string) => [...taskKeys.details(), taskId] as const,
+  board: (boardId: string) => [...taskKeys.all, "board", boardId] as const,
+  column: (columnId: string) => [...taskKeys.all, "column", columnId] as const,
+  detail: (taskId: string) => [...taskKeys.all, "detail", taskId] as const,
 };
 
 // Get tasks for a board
@@ -40,7 +38,7 @@ export const useTasksForBoard = (
   options?: UseQueryOptions<GetTasksResponse>
 ) => {
   return useQuery({
-    queryKey: taskKeys.boardTasks(boardId),
+    queryKey: taskKeys.board(boardId),
     queryFn: () => taskService.getTasksForBoard(boardId),
     enabled: !!boardId,
     ...options,
@@ -53,7 +51,7 @@ export const useTasksForColumn = (
   options?: UseQueryOptions<GetTasksResponse>
 ) => {
   return useQuery({
-    queryKey: taskKeys.columnTasks(columnId),
+    queryKey: taskKeys.column(columnId),
     queryFn: () => taskService.getTasksForColumn(columnId),
     enabled: !!columnId,
     ...options,
@@ -80,12 +78,22 @@ export const useCreateTask = () => {
   return useMutation<CreateTaskResponse, Error, CreateTaskRequest>({
     mutationFn: taskService.createTask,
     onSuccess: (data, variables) => {
-      // Simple cache invalidation to refresh the lists
+      // Invalidate the board query that contains the tasks
       queryClient.invalidateQueries({
-        queryKey: taskKeys.boardTasks(variables.boardId),
+        queryKey: boardKeys.detail(variables.boardId),
+      });
+
+      // Also invalidate columns in case they have task counts
+      queryClient.invalidateQueries({
+        queryKey: columnKeys.board(variables.boardId),
+      });
+
+      // Keep task-specific queries in sync too
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.board(variables.boardId),
       });
       queryClient.invalidateQueries({
-        queryKey: taskKeys.columnTasks(variables.columnId),
+        queryKey: taskKeys.column(variables.columnId),
       });
 
       // Show success toast
@@ -117,12 +125,22 @@ export const useUpdateTask = () => {
   >({
     mutationFn: ({ taskId, data }) => taskService.updateTask(taskId, data),
     onSuccess: (response, { taskId }) => {
-      // Simple cache invalidation
+      // Invalidate board query (primary data source)
       queryClient.invalidateQueries({
-        queryKey: taskKeys.boardTasks(response.task.boardId),
+        queryKey: boardKeys.detail(response.task.boardId),
+      });
+
+      // Invalidate columns
+      queryClient.invalidateQueries({
+        queryKey: columnKeys.board(response.task.boardId),
+      });
+
+      // Keep task-specific queries in sync
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.board(response.task.boardId),
       });
       queryClient.invalidateQueries({
-        queryKey: taskKeys.columnTasks(response.task.columnId),
+        queryKey: taskKeys.column(response.task.columnId),
       });
       queryClient.invalidateQueries({
         queryKey: taskKeys.detail(taskId),
@@ -158,13 +176,13 @@ export const useMoveTask = () => {
     onSuccess: (response, { data, taskId }) => {
       // Simple cache invalidation
       queryClient.invalidateQueries({
-        queryKey: taskKeys.columnTasks(data.sourceColumnId),
+        queryKey: taskKeys.column(data.sourceColumnId),
       });
       queryClient.invalidateQueries({
-        queryKey: taskKeys.columnTasks(data.targetColumnId),
+        queryKey: taskKeys.column(data.targetColumnId),
       });
       queryClient.invalidateQueries({
-        queryKey: taskKeys.boardTasks(response.task.boardId),
+        queryKey: taskKeys.board(response.task.boardId),
       });
       queryClient.invalidateQueries({
         queryKey: taskKeys.detail(taskId),
@@ -202,10 +220,10 @@ export const useAssignUsers = () => {
         queryKey: taskKeys.detail(taskId),
       });
       queryClient.invalidateQueries({
-        queryKey: taskKeys.boardTasks(response.task.boardId),
+        queryKey: taskKeys.board(response.task.boardId),
       });
       queryClient.invalidateQueries({
-        queryKey: taskKeys.columnTasks(response.task.columnId),
+        queryKey: taskKeys.column(response.task.columnId),
       });
 
       addToast({
@@ -231,9 +249,9 @@ export const useDeleteTask = () => {
   return useMutation<DeleteTaskResponse, Error, string>({
     mutationFn: taskService.deleteTask,
     onSuccess: (_response, taskId) => {
-      // Simple cache invalidation
+      // Since we don't have boardId in delete response, invalidate all task queries
       queryClient.invalidateQueries({
-        queryKey: taskKeys.lists(),
+        queryKey: taskKeys.all,
       });
       queryClient.removeQueries({
         queryKey: taskKeys.detail(taskId),
