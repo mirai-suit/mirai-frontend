@@ -32,6 +32,7 @@ import { NotificationPanel } from "./notification-panel";
 import { ThemeTabs } from "@/components/theme-switch";
 import { useAuthStore } from "@/modules/auth/store";
 import { siteConfig } from "@/config/site";
+import { authService } from "@/modules/auth/services";
 
 interface SidebarHeaderProps {
   isCollapsed: boolean;
@@ -86,14 +87,14 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       prev.map((notification) =>
         notification.id === id
           ? { ...notification, isRead: true }
-          : notification,
-      ),
+          : notification
+      )
     );
   };
 
   const handleMarkAllAsRead = () => {
     setNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, isRead: true })),
+      prev.map((notification) => ({ ...notification, isRead: true }))
     );
   };
 
@@ -211,6 +212,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
               key="logout"
               color="danger"
               startContent={<SignOut size={18} />}
+              onClick={() => authService.logout()}
             >
               Log Out
             </DropdownItem>

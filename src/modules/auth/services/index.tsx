@@ -25,7 +25,7 @@ export const authService = {
 
       if (refreshToken) {
         // Revoke the refresh token on the server
-        await apiClient.post("/auth/logout", { token: refreshToken });
+        // await apiClient.post("/auth/logout", { token: refreshToken });
       }
     } catch {
       // Handle logout error silently
