@@ -83,7 +83,7 @@ export default function RegisterForm() {
         </p>
         <div className="flex items-center justify-center mb-2">
           <Avatar
-            colors={["#7828c8", "#006FEE"]}
+            colors={siteConfig?.avatarColors?.beam}
             name={`${watch("firstName")} ${watch("lastName")}`}
             size={siteConfig?.avatarSize}
             variant="beam"

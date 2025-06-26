@@ -1,7 +1,8 @@
 import React from "react";
-import { Avatar, Button, Card } from "@heroui/react";
+import { Button, Card } from "@heroui/react";
 import { Gear, X, Circle } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
+import Avatar from "boring-avatars";
 
 import { Notification } from "../types/sidebar.type";
 
@@ -108,6 +109,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                 {/* User avatar for the notification */}
                 <Avatar
                   className="flex-shrink-0"
+                  name="User Avatar"
                   size="sm"
                   src={notification.avatar}
                 />

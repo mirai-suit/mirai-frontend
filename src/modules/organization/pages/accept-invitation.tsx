@@ -5,11 +5,11 @@ import {
   CardHeader,
   Button,
   Spinner,
-  Avatar,
   Chip,
 } from "@heroui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle, Users, ArrowRight } from "@phosphor-icons/react";
+import Avatar from "boring-avatars";
 
 import { useInvitationDetails, useAcceptInvitation } from "../api";
 import { getRoleColor } from "../validations";
@@ -152,6 +152,7 @@ export const AcceptInvitationPage: React.FC = () => {
               showFallback
               className="w-16 h-16 mx-auto mb-4"
               name={invitation.organization.name}
+              variant="marble"
             />
             <h1 className="text-2xl font-bold mb-2">You&apos;re Invited!</h1>
             <p className="text-default-500">

@@ -1,10 +1,13 @@
 import React from "react";
-import { Card, CardBody, Chip } from "@heroui/react";
+import { Card, CardBody, Chip, AvatarGroup, Tooltip } from "@heroui/react";
 import { Calendar, Flag } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
+import Avatar from "boring-avatars";
 
 import { Task } from "../types";
 import { TASK_PRIORITIES, TASK_STATUSES } from "../validations";
+
+import { siteConfig } from "@/config/site";
 
 interface TaskCardProps {
   task: Task;
@@ -75,27 +78,71 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
               </p>
             )}
 
-            <div className="flex items-center justify-start gap-3">
-              {/* Task Priority */}
-              {task.priority && (
-                <div className="flex items-center gap-1">
-                  <Flag size={12} />
-                  <Chip
-                    className="text-xs"
-                    color={getPriorityColor(task.priority)}
-                    size="sm"
-                    variant="flat"
-                  >
-                    {getPriorityLabel(task.priority)}
-                  </Chip>
-                </div>
-              )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* Task Priority */}
+                {task.priority && (
+                  <div className="flex items-center gap-1">
+                    <Flag size={12} />
+                    <Chip
+                      className="text-xs"
+                      color={getPriorityColor(task.priority)}
+                      size="sm"
+                      variant="flat"
+                    >
+                      {getPriorityLabel(task.priority)}
+                    </Chip>
+                  </div>
+                )}
 
-              {/* Task Due Date */}
-              {task.dueDate && (
-                <div className="flex items-center gap-1 text-xs text-default-500">
-                  <Calendar size={12} />
-                  <span>{formatDate(task.dueDate)}</span>
+                {/* Task Due Date */}
+                {task.dueDate && (
+                  <div className="flex items-center gap-1 text-xs text-default-500">
+                    <Calendar size={12} />
+                    <span>{formatDate(task.dueDate)}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Task Assignees */}
+              {task.assignees && task.assignees.length > 0 && (
+                <div className="flex items-center gap-1">
+                  {task.assignees.length === 1 ? (
+                    <Tooltip
+                      content={`Assigned to ${task.assignees[0].firstName} ${task.assignees[0].lastName}`}
+                    >
+                      <Avatar
+                        className="cursor-pointer"
+                        colors={siteConfig?.avatarColors.beam}
+                        name={`${task.assignees[0].firstName} ${task.assignees[0].lastName}`}
+                        size={siteConfig.avatarSize}
+                        src={task.assignees[0].avatar}
+                        variant="beam"
+                      />
+                    </Tooltip>
+                  ) : (
+                    <AvatarGroup
+                      isBordered
+                      max={3}
+                      size="sm"
+                      total={task.assignees.length}
+                    >
+                      {task.assignees.slice(0, 3).map((assignee) => (
+                        <Tooltip
+                          key={assignee.id}
+                          content={`${assignee.firstName} ${assignee.lastName}`}
+                        >
+                          <Avatar
+                            className="cursor-pointer"
+                            colors={siteConfig?.avatarColors.beam}
+                            name={`${assignee.firstName} ${assignee.lastName}`}
+                            size={siteConfig.avatarSize}
+                            variant="beam"
+                          />
+                        </Tooltip>
+                      ))}
+                    </AvatarGroup>
+                  )}
                 </div>
               )}
             </div>

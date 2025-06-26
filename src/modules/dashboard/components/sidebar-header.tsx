@@ -178,7 +178,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
               variant="light"
             >
               <Avatar
-                colors={["#7828c8", "#006FEE"]}
+                colors={siteConfig.avatarColors?.beam}
                 name={user?.firstName + " " + user?.lastName}
                 size={siteConfig.avatarSize}
                 variant="beam"

@@ -10,7 +10,6 @@ import {
   TableRow,
   TableCell,
   Chip,
-  Avatar,
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
@@ -28,6 +27,7 @@ import {
   PencilSimple,
   Trash,
 } from "@phosphor-icons/react";
+import Avatar from "boring-avatars";
 
 import {
   useOrganizationMembers,
@@ -43,6 +43,7 @@ import { RemoveMemberModal } from "./remove-member-modal";
 
 import { useAuthStore } from "@/modules/auth/store";
 
+import { siteConfig } from "@/config/site";
 interface MembersManagementProps {
   organizationId: string;
 }
@@ -66,7 +67,7 @@ export const MembersManagement: React.FC<MembersManagementProps> = ({
 
   const members = membersResponse?.members || [];
   const currentUserMember = members.find(
-    (member) => member.user.id === user?.id
+    (member) => member.user.id === user?.id,
   );
   const isCurrentUserAdmin = currentUserMember?.role === "ADMIN";
 
@@ -168,9 +169,10 @@ export const MembersManagement: React.FC<MembersManagementProps> = ({
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar
+                          colors={siteConfig.avatarColors?.beam}
                           name={`${member.user.firstName} ${member.user.lastName}`}
-                          size="sm"
-                          src={member.user.avatar}
+                          size={40}
+                          variant="beam"
                         />
                         <div>
                           <p className="font-medium">
@@ -263,20 +265,20 @@ export const MembersManagement: React.FC<MembersManagementProps> = ({
 
       {/* Edit Role Modal */}
       <EditRoleModal
+        isLoading={changeMemberRoleMutation.isPending}
         isOpen={isEditRoleModalOpen}
         member={selectedMember}
         onClose={handleCloseEditRoleModal}
         onConfirm={handleConfirmEditRole}
-        isLoading={changeMemberRoleMutation.isPending}
       />
 
       {/* Remove Member Modal */}
       <RemoveMemberModal
+        isLoading={removeMemberMutation.isPending}
         isOpen={isRemoveMemberModalOpen}
         member={selectedMember}
         onClose={handleCloseRemoveMemberModal}
         onConfirm={handleConfirmRemoveMember}
-        isLoading={removeMemberMutation.isPending}
       />
     </div>
   );

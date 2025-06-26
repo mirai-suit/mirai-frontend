@@ -10,7 +10,6 @@ import {
   Button,
   Select,
   SelectItem,
-  Avatar,
   Chip,
 } from "@heroui/react";
 import { useForm, Controller } from "react-hook-form";
@@ -25,6 +24,8 @@ import {
 } from "../validations";
 
 import { useOrgStore } from "@/store/useOrgStore";
+import Avatar from "boring-avatars";
+import { siteConfig } from "@/config/site";
 
 const editRoleSchema = z.object({
   role: z.enum(["ADMIN", "EDITOR", "MEMBER"]),
@@ -129,9 +130,10 @@ export const EditRoleModal: React.FC<EditRoleModalProps> = ({
               <div className="bg-default-50 dark:bg-default-100 rounded-lg p-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <Avatar
-                    className="flex-shrink-0"
                     name={`${member.user.firstName} ${member.user.lastName}`}
-                    size="md"
+                    size={40}
+                    variant="beam"
+                    colors={siteConfig.avatarColors?.beam}
                   />
                   <div className="flex-1">
                     <h4 className="font-semibold">

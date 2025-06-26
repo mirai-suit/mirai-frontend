@@ -25,9 +25,13 @@ import {
   TASK_STATUSES,
 } from "../validations";
 import { type CreateTaskRequest } from "../types";
+
 import { useCreateTask } from "../api";
+import { AssigneeSelect } from "./assignee-select";
 
 import { WithPermission } from "@/components/role-based-access";
+import { useOrganizationMembers } from "@/modules/organization/api";
+import { useOrgStore } from "@/store/useOrgStore";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -44,7 +48,15 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   columnId,
   teamId,
 }) => {
+  const { currentOrg } = useOrgStore();
   const createTaskMutation = useCreateTask();
+
+  // Get organization members for assignment
+  const { data: membersResponse } = useOrganizationMembers(
+    currentOrg?.id || ""
+  );
+
+  const organizationMembers = membersResponse?.members || [];
 
   const {
     control,
@@ -110,6 +122,8 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     reset();
     onClose();
   };
+
+  console.log("ERRORS IN FORM", errors);
 
   return (
     <Modal isOpen={isOpen} placement="center" size="3xl" onClose={handleClose}>
@@ -222,6 +236,12 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                       ))}
                     </Select>
                   )}
+                />
+
+                {/* Assignees Selection */}
+                <AssigneeSelect
+                  control={control}
+                  organizationMembers={organizationMembers}
                 />
 
                 {/* Recurring Task */}
