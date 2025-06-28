@@ -7,20 +7,25 @@ import {
   Spinner,
   ScrollShadow,
   useDisclosure,
+  Tooltip,
 } from "@heroui/react";
-import { ArrowLeft, Users, Gear, Plus } from "@phosphor-icons/react";
+import { ArrowLeft, Users, Gear, Plus, Notepad } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
 
 import { useBoard } from "../api";
 import { useBoardStore } from "../store";
+import { NotesDrawer } from "../components/notes-drawer";
 import { ColumnCard } from "../../column/components/column-card";
 import { ColumnSkeleton } from "../../column/components/column-skeleton";
 import { CreateColumnModal } from "../../column/components/create-column-modal";
 import { useGetColumnsForBoard } from "../../column/api";
 import { useTasksForBoard } from "../../task/api";
+import { QuickFilterChips } from "../../task/components/quick-filter-chips";
+import { useTaskFilterStore } from "../../task/store/useTaskFilterStore";
+import { applyFiltersAndSort } from "../../task/utils/taskFilters";
+import { useAuthStore } from "../../auth/store";
 
 import { WithPermission } from "@/components/role-based-access";
-import { useOrgStore } from "@/store/useOrgStore";
 
 interface BoardPageProps {
   // Add props if needed
@@ -31,9 +36,7 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
   const navigate = useNavigate();
   const { setCurrentBoard } = useBoardStore();
   const createColumnModal = useDisclosure();
-
-  // Debug: Add org store to check permissions
-  const { currentUserRole, hasPermission, currentOrg } = useOrgStore();
+  const notesDrawer = useDisclosure();
 
   const { data: boardResponse, isLoading, isError, error } = useBoard(boardId!);
   const { data: columnsResponse, isLoading: isLoadingColumns } =
@@ -44,15 +47,15 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
   const columns = columnsResponse?.columns || [];
   const tasks = tasksResponse?.tasks || [];
 
-  // Debug logging
-  React.useEffect(() => {
-    console.log("🔍 Board Page Debug Info:");
-    console.log("Current Org:", currentOrg);
-    console.log("Current User Role:", currentUserRole);
-    console.log("Can Create Boards:", hasPermission("createBoards"));
-    console.log("Org ID from URL:", orgId);
-    console.log("Board ID:", boardId);
-  }, [currentOrg, currentUserRole, hasPermission, orgId, boardId]);
+  // Board-level filtering
+  const { user } = useAuthStore();
+  const { getBoardFilters } = useTaskFilterStore();
+  const boardFilters = getBoardFilters(boardId!);
+
+  // Apply filters to all tasks in this board
+  const filteredTasks = React.useMemo(() => {
+    return applyFiltersAndSort(tasks, boardFilters, user?.id);
+  }, [tasks, boardFilters, user?.id]);
 
   // Update current board in store when data changes
   React.useEffect(() => {
@@ -137,10 +140,36 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
             </Button>
           )}
 
+          <Tooltip content="Notes">
+            <Button
+              isIconOnly
+              size="sm"
+              title="Notes"
+              variant="light"
+              onPress={notesDrawer.onOpen}
+            >
+              <Notepad size={18} />
+            </Button>
+          </Tooltip>
+
           <Button isIconOnly size="sm" variant="light">
             <Gear size={18} />
           </Button>
         </div>
+      </motion.div>
+
+      {/* Board Filters */}
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        className="border-b border-divider px-6 py-3"
+        initial={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+      >
+        <QuickFilterChips
+          boardId={boardId!}
+          filteredTaskCount={filteredTasks.length}
+          taskCount={tasks.length}
+        />
       </motion.div>
 
       {/* Board Content */}
@@ -180,8 +209,8 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
               {columns
                 .sort((a, b) => a.order - b.order)
                 .map((column, index) => {
-                  // Filter tasks for this column from the tasks API response
-                  const columnTasks = tasks.filter(
+                  // Filter tasks for this column from the filtered tasks
+                  const columnTasks = filteredTasks.filter(
                     (task) => task.columnId === column.id,
                   );
 
@@ -263,6 +292,13 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
         boardId={boardId!}
         isOpen={createColumnModal.isOpen}
         onClose={createColumnModal.onClose}
+      />
+
+      {/* Notes Drawer */}
+      <NotesDrawer
+        boardId={boardId!}
+        isOpen={notesDrawer.isOpen}
+        onClose={notesDrawer.onClose}
       />
     </div>
   );

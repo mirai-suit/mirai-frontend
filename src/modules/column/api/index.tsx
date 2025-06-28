@@ -6,6 +6,7 @@ import {
   CreateColumnRequest,
   UpdateColumnRequest,
   ReorderColumnTasksRequest,
+  ReorderColumnsRequest,
 } from "../types";
 
 // Query keys
@@ -153,6 +154,40 @@ export const useReorderColumnTasks = () => {
     onError: (error: any) => {
       const message =
         error?.response?.data?.message || "Failed to reorder tasks";
+
+      addToast({
+        title: "Error",
+        description: message,
+        color: "danger",
+        variant: "flat",
+      });
+    },
+  });
+};
+
+// Reorder columns mutation
+export const useReorderColumns = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ReorderColumnsRequest) =>
+      columnService.reorderColumns(data),
+    onSuccess: (_response, variables) => {
+      addToast({
+        title: "Success!",
+        description: "Columns reordered successfully!",
+        color: "success",
+        variant: "flat",
+      });
+
+      // Invalidate columns for this board
+      queryClient.invalidateQueries({
+        queryKey: columnKeys.board(variables.boardId),
+      });
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Failed to reorder columns";
 
       addToast({
         title: "Error",

@@ -45,7 +45,7 @@ export const ColumnList: React.FC<ColumnListProps> = ({ boardId }) => {
         ))}
 
         {/* Add column button */}
-        <div className="w-80 flex-shrink-0">
+        <div className="w-72 flex-shrink-0">
           <Button
             className="w-full h-16 border-dashed border-2 justify-center"
             startContent={<Plus className="h-5 w-5" />}

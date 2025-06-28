@@ -31,32 +31,34 @@ import { Task } from "../types";
 import { TASK_PRIORITIES, TASK_STATUSES } from "../validations";
 import { useDeleteTask } from "../api";
 
+import { EditTaskModal } from "./edit-task-modal";
+
 import { siteConfig } from "@/config/site";
 import { WithRole } from "@/components/role-based-access";
 
 interface TaskCardProps {
   task: Task;
-  onClick?: () => void;
-  onEdit?: () => void;
+  onClick?: () => void; // Keep this for viewing task details
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({
-  task,
-  onClick,
-  onEdit,
-}) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
   const deleteTaskMutation = useDeleteTask();
   const {
     isOpen: isDeleteModalOpen,
     onOpen: onDeleteModalOpen,
     onClose: onDeleteModalClose,
   } = useDisclosure();
+  const {
+    isOpen: isEditModalOpen,
+    onOpen: onEditModalOpen,
+    onClose: onEditModalClose,
+  } = useDisclosure();
 
   const handleDelete = async () => {
     try {
       await deleteTaskMutation.mutateAsync(task.id);
       onDeleteModalClose();
-    } catch (error) {
+    } catch {
       // Handle error silently or show toast
     }
   };
@@ -64,7 +66,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const handleDropdownAction = (key: string) => {
     switch (key) {
       case "edit":
-        onEdit?.();
+        onEditModalOpen();
         break;
       case "delete":
         onDeleteModalOpen();
@@ -123,12 +125,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <div className="space-y-2">
               {/* Header with Title and Actions */}
               <div className="flex items-start justify-between gap-2">
-                <p
-                  className="text-sm font-medium text-foreground line-clamp-1 cursor-pointer flex-1"
+                <button
+                  aria-label={`View task: ${task.title}`}
+                  className="text-sm font-medium text-foreground line-clamp-1 cursor-pointer flex-1 text-left bg-transparent border-none p-0"
+                  tabIndex={0}
+                  type="button"
                   onClick={onClick}
                 >
                   {task.title}
-                </p>
+                </button>
 
                 {/* Action Dropdown */}
                 <WithRole allowedRoles={["ADMIN", "EDITOR"]}>
@@ -136,9 +141,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     <DropdownTrigger>
                       <Button
                         isIconOnly
+                        className="h-6 w-6 min-w-6"
                         size="sm"
                         variant="light"
-                        className="h-6 w-6 min-w-6"
                       >
                         <DotsThree size={16} />
                       </Button>
@@ -155,8 +160,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                       </DropdownItem>
                       <DropdownItem
                         key="delete"
-                        color="danger"
                         className="text-danger"
+                        color="danger"
                         startContent={<Trash size={16} />}
                       >
                         Delete Task
@@ -168,12 +173,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
               {/* Task Description */}
               {task.description && (
-                <p
-                  className="text-xs text-default-500 line-clamp-2 cursor-pointer"
+                <button
+                  className="text-xs text-default-500 line-clamp-2 cursor-pointer bg-transparent border-none p-0 text-left w-full"
+                  type="button"
                   onClick={onClick}
                 >
                   {task.description}
-                </p>
+                </button>
               )}
 
               <div className="flex items-center justify-between">
@@ -264,14 +270,21 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </Card>
       </motion.div>
 
+      {/* Edit Task Modal */}
+      <EditTaskModal
+        isOpen={isEditModalOpen}
+        task={task}
+        onClose={onEditModalClose}
+      />
+
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteModalOpen} onClose={onDeleteModalClose}>
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">Delete Task</ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete "{task.title}"? This action cannot
-              be undone.
+              Are you sure you want to delete &quot;{task.title}&quot;? This
+              action cannot be undone.
             </p>
           </ModalBody>
           <ModalFooter>

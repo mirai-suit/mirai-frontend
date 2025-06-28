@@ -19,6 +19,11 @@ export interface ReorderColumnTasksRequest {
   orderedTaskIds: string[];
 }
 
+export interface ReorderColumnsRequest {
+  boardId: string;
+  columnIds: string[];
+}
+
 export interface ColumnApiResponse {
   success: boolean;
   column: Column;

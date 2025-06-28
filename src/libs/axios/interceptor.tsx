@@ -17,7 +17,7 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 };
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -34,7 +34,7 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
 // ✅ Response interceptor — handle 401 + retry
@@ -93,7 +93,7 @@ apiClient.interceptors.response.use(
           try {
             response = await axios.post(
               `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/refresh-token`,
-              { refreshToken },
+              { refreshToken }
             );
             break; // success
           } catch (err) {
@@ -128,7 +128,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default apiClient;

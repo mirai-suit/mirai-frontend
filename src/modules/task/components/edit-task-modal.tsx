@@ -10,15 +10,18 @@ import {
   Textarea,
   Select,
   SelectItem,
+  DateRangePicker,
 } from "@heroui/react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
 
 import { Task, UpdateTaskRequest } from "../types";
 import {
-  updateTaskSchema,
+  updateTaskFormSchema,
   TASK_PRIORITIES,
   TASK_STATUSES,
+  UpdateTaskFormInput,
 } from "../validations";
 import { useUpdateTask } from "../api";
 
@@ -33,15 +36,6 @@ interface EditTaskModalProps {
   onClose: () => void;
 }
 
-type EditTaskFormInput = {
-  title: string;
-  description?: string;
-  status?: string;
-  priority?: string;
-  dueDate?: string;
-  assigneeIds?: string[];
-};
-
 export const EditTaskModal: React.FC<EditTaskModalProps> = ({
   task,
   isOpen,
@@ -52,38 +46,63 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
   // Get organization members for assignment
   const { data: membersResponse } = useOrganizationMembers(
-    currentOrg?.id || "",
+    currentOrg?.id || ""
   );
   const organizationMembers = membersResponse?.members || [];
+
+  const formData = React.useMemo(
+    () => ({
+      title: task.title,
+      description: task.description || "",
+      status: task.status || "NOT_STARTED",
+      priority: task.priority || "MEDIUM",
+      dateRange:
+        task.startDate && task.dueDate
+          ? {
+              start: new Date(task.startDate).toISOString().split("T")[0],
+              end: new Date(task.dueDate).toISOString().split("T")[0],
+            }
+          : task.startDate
+            ? {
+                start: new Date(task.startDate).toISOString().split("T")[0],
+                end: undefined,
+              }
+            : task.dueDate
+              ? {
+                  start: undefined,
+                  end: new Date(task.dueDate).toISOString().split("T")[0],
+                }
+              : undefined,
+      assigneeIds: task.assignees?.map((assignee) => assignee.id) || [],
+    }),
+    [task]
+  );
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
-  } = useForm<EditTaskFormInput>({
-    resolver: zodResolver(updateTaskSchema),
-    defaultValues: {
-      title: task.title,
-      description: task.description || "",
-      status: task.status || "NOT_STARTED",
-      priority: task.priority || "MEDIUM",
-      dueDate: task.dueDate
-        ? new Date(task.dueDate).toISOString().split("T")[0]
-        : undefined,
-      assigneeIds: task.assignees?.map((assignee) => assignee.id) || [],
-    },
+  } = useForm<UpdateTaskFormInput>({
+    resolver: zodResolver(updateTaskFormSchema),
+    values: formData, // Use values instead of defaultValues for dynamic updates
   });
 
-  const onSubmit = async (data: EditTaskFormInput) => {
+  const onSubmit = async (data: UpdateTaskFormInput) => {
     try {
       const updateData: UpdateTaskRequest = {
         title: data.title,
         description: data.description,
         status: data.status as any,
         priority: data.priority as any,
-        dueDate: data.dueDate
-          ? new Date(data.dueDate).toISOString()
+        startDate: data.dateRange?.start
+          ? parseDate(data.dateRange.start)
+              .toDate(getLocalTimeZone())
+              .toISOString()
+          : undefined,
+        dueDate: data.dateRange?.end
+          ? parseDate(data.dateRange.end)
+              .toDate(getLocalTimeZone())
+              .toISOString()
           : undefined,
         assigneeIds: data.assigneeIds,
       };
@@ -93,22 +112,22 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
         data: updateData,
       });
 
-      reset();
+      // The task data will be updated via the mutation's onSuccess callback
+      // No need to reset the form here as the modal will close
       onClose();
-    } catch (error) {
+    } catch {
       // Error handling is done in the mutation
     }
   };
 
   const handleClose = () => {
-    reset();
     onClose();
   };
 
   return (
     <Modal isOpen={isOpen} size="2xl" onClose={handleClose}>
       <ModalContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form key={`edit-task-${task.id}`} onSubmit={handleSubmit(onSubmit)}>
           <ModalHeader className="flex flex-col gap-1">Edit Task</ModalHeader>
           <ModalBody>
             <div className="space-y-4">
@@ -160,7 +179,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                       }}
                     >
                       {TASK_STATUSES.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
+                        <SelectItem key={status.value}>
                           {status.label}
                         </SelectItem>
                       ))}
@@ -186,7 +205,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                       }}
                     >
                       {TASK_PRIORITIES.map((priority) => (
-                        <SelectItem key={priority.value} value={priority.value}>
+                        <SelectItem key={priority.value}>
                           {priority.label}
                         </SelectItem>
                       ))}
@@ -195,17 +214,36 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                 />
               </div>
 
-              {/* Due Date */}
+              {/* Date Range */}
               <Controller
                 control={control}
-                name="dueDate"
+                name="dateRange"
                 render={({ field }) => (
-                  <Input
-                    {...field}
-                    errorMessage={errors.dueDate?.message}
-                    label="Due Date"
-                    placeholder="Select due date"
-                    type="date"
+                  <DateRangePicker
+                    description="Select start and end dates for the task"
+                    errorMessage={errors.dateRange?.message}
+                    label="Task Duration"
+                    minValue={today(getLocalTimeZone())}
+                    size="sm"
+                    value={
+                      field.value?.start && field.value?.end
+                        ? {
+                            start: parseDate(field.value.start) as any,
+                            end: parseDate(field.value.end) as any,
+                          }
+                        : undefined
+                    }
+                    variant="flat"
+                    onChange={(range: any) => {
+                      if (range && range.start && range.end) {
+                        field.onChange({
+                          start: range.start.toString(),
+                          end: range.end.toString(),
+                        });
+                      } else {
+                        field.onChange(undefined);
+                      }
+                    }}
                   />
                 )}
               />

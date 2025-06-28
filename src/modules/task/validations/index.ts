@@ -73,7 +73,26 @@ export const createTaskSchema = z.object({
   assigneeIds: z.array(z.string().uuid("Invalid user ID")).optional(),
 });
 
-// Update Task Schema
+// Update Task Form Schema (for forms with DateRangePicker)
+export const updateTaskFormSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(255, "Title too long")
+    .optional(),
+  description: z.string().max(1000, "Description too long").optional(),
+  status: TaskStatusEnum.optional(),
+  customStatus: z.string().max(50, "Custom status too long").optional(),
+  dateRange: dateRangeSchema,
+  priority: TaskPriorityEnum.optional(),
+  order: z.number().int().min(0).optional(),
+  isRecurring: z.boolean().optional(),
+  columnId: z.string().uuid("Invalid column ID").optional(),
+  teamId: z.string().uuid("Invalid team ID").optional(),
+  assigneeIds: z.array(z.string().uuid("Invalid user ID")).optional(),
+});
+
+// Update Task Schema (for API requests with separate date fields)
 export const updateTaskSchema = z.object({
   title: z
     .string()
@@ -133,6 +152,7 @@ export const taskQuerySchema = z.object({
 // Export types
 export type CreateTaskFormInput = z.infer<typeof createTaskFormSchema>;
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
+export type UpdateTaskFormInput = z.infer<typeof updateTaskFormSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type MoveTaskInput = z.infer<typeof moveTaskSchema>;
 export type AssignUsersInput = z.infer<typeof assignUsersSchema>;

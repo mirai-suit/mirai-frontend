@@ -19,6 +19,7 @@ import { Column } from "../../board/types";
 import { Task } from "../../task/types";
 import { CreateTaskModal } from "../../task/components/create-task-modal";
 import { TaskCard } from "../../task/components/task-card";
+import { TaskViewModal } from "../../task/components/task-view-modal";
 
 import { EditColumnModal } from "./edit-column-modal";
 
@@ -27,7 +28,7 @@ import { useOrgStore } from "@/store/useOrgStore";
 
 interface ColumnCardProps {
   column: Column;
-  tasks?: Task[]; // Tasks will be passed separately since Column type doesn't include them
+  tasks?: Task[];
 }
 
 export const ColumnCard: React.FC<ColumnCardProps> = ({
@@ -38,8 +39,12 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
   const { hasPermission } = useOrgStore();
   const editModal = useDisclosure();
   const createTaskModal = useDisclosure();
+  const taskViewModal = useDisclosure();
   const [selectedColumn, setSelectedColumn] = React.useState<Column | null>(
-    null
+    null,
+  );
+  const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(
+    null,
   );
 
   const canEditColumn = hasPermission("createBoards");
@@ -53,9 +58,19 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
     createTaskModal.onOpen();
   };
 
+  const handleTaskClick = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    taskViewModal.onOpen();
+  };
+
+  const handleTaskViewClose = () => {
+    setSelectedTaskId(null);
+    taskViewModal.onClose();
+  };
+
   return (
     <>
-      <Card className="w-64 h-fit min-h-[200px]">
+      <Card className="w-72 h-fit min-h-[200px]">
         <CardHeader className="flex items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <div
@@ -88,18 +103,21 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
 
         <CardBody className="pt-0">
           {/* Task list */}
-          <ScrollShadow className="max-h-[calc(100vh-300px)]">
+          <ScrollShadow className="max-h-[calc(100vh-350px)]">
             <AnimatePresence initial={false} mode="popLayout">
               <div className="space-y-2 mb-4">
                 {tasks.map((task) => (
                   <TaskCard
                     key={task.id}
                     task={task}
-                    onClick={() => {
-                      // TODO: Implement task edit/view functionality
-                    }}
+                    onClick={() => handleTaskClick(task.id)}
                   />
                 ))}
+                {tasks.length === 0 && (
+                  <div className="text-center py-4 text-default-400 text-sm">
+                    No tasks match the current filters
+                  </div>
+                )}
               </div>
             </AnimatePresence>
           </ScrollShadow>
@@ -137,6 +155,12 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
         columnId={column.id}
         isOpen={createTaskModal.isOpen}
         onClose={createTaskModal.onClose}
+      />
+
+      <TaskViewModal
+        taskId={selectedTaskId}
+        isOpen={taskViewModal.isOpen}
+        onClose={handleTaskViewClose}
       />
     </>
   );

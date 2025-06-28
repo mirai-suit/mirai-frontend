@@ -1,5 +1,5 @@
 import React from "react";
-import { parseDate, getLocalTimeZone } from "@internationalized/date";
+import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Modal,
@@ -122,8 +122,6 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
     reset();
     onClose();
   };
-
-  console.log("ERRORS IN FORM", errors);
 
   return (
     <Modal isOpen={isOpen} placement="center" size="3xl" onClose={handleClose}>
@@ -298,6 +296,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                   <DateRangePicker
                     description="Select start and end dates for the task"
                     label="Task Duration"
+                    minValue={today(getLocalTimeZone())}
                     size="sm"
                     value={
                       field.value?.start && field.value?.end

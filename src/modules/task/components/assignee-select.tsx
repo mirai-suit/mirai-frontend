@@ -1,12 +1,9 @@
-import React from "react";
-import { Controller, Control } from "react-hook-form";
+import { Controller, Control, FieldPath, FieldValues } from "react-hook-form";
 import { Select, SelectItem, Avatar, Chip } from "@heroui/react";
 import { Users } from "@phosphor-icons/react";
 
-import { CreateTaskFormInput } from "../validations";
-
-interface AssigneeSelectProps {
-  control: Control<CreateTaskFormInput>;
+interface AssigneeSelectProps<T extends FieldValues> {
+  control: Control<T>;
   organizationMembers: Array<{
     user: {
       id: string;
@@ -16,19 +13,21 @@ interface AssigneeSelectProps {
       avatar?: string;
     };
   }>;
+  name?: FieldPath<T>;
 }
 
-export const AssigneeSelect: React.FC<AssigneeSelectProps> = ({
+export const AssigneeSelect = <T extends FieldValues>({
   control,
   organizationMembers,
-}) => {
+  name = "assigneeIds" as FieldPath<T>,
+}: AssigneeSelectProps<T>) => {
   return (
     <Controller
       control={control}
-      name="assigneeIds"
+      name={name}
       render={({ field, fieldState: { error } }) => {
         const selectedMembers = organizationMembers.filter((member) =>
-          field.value?.includes(member.user.id)
+          (field.value as string[])?.includes(member.user.id)
         );
 
         return (
@@ -103,8 +102,9 @@ export const AssigneeSelect: React.FC<AssigneeSelectProps> = ({
                       variant="flat"
                       onClose={() => {
                         const newValue =
-                          field.value?.filter((id) => id !== member.user.id) ||
-                          [];
+                          (field.value as string[])?.filter(
+                            (id: string) => id !== member.user.id
+                          ) || [];
 
                         field.onChange(newValue);
                       }}
