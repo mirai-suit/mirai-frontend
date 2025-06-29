@@ -29,6 +29,8 @@ export class ChatSocketService {
   // Connect to socket server
   connect(): void {
     if (this.socket && !this.socket.connected) {
+      // eslint-disable-next-line no-console
+      console.log("🔌 Attempting to connect to socket server...");
       this.socket.connect();
     }
   }
@@ -53,13 +55,20 @@ export class ChatSocketService {
 
   // Join a board room
   joinBoard(boardId: string): void {
-    if (!this.socket || !this.socket.connected) return;
+    if (!this.socket || !this.socket.connected) {
+      // eslint-disable-next-line no-console
+      console.warn("⚠️ Cannot join board - socket not connected");
+
+      return;
+    }
 
     // Leave current board if any
     if (this.boardId && this.boardId !== boardId) {
       this.leaveBoard();
     }
 
+    // eslint-disable-next-line no-console
+    console.log("🏠 Joining board room:", boardId);
     this.boardId = boardId;
     this.socket.emit("joinBoard", boardId);
   }
@@ -84,17 +93,11 @@ export class ChatSocketService {
     });
   }
 
-  // Send message (for real-time broadcast only)
-  sendMessage(message: SocketMessage): void {
-    if (!this.socket || !this.boardId) return;
+  // Send message (REMOVED - No longer needed for own messages)
+  // The API call handles sending and the server broadcasts to other users
+  // We use optimistic updates for immediate UI feedback
 
-    this.socket.emit("sendMessage", {
-      boardId: this.boardId,
-      message,
-    });
-  }
-
-  // Send message edit broadcast
+  // Send message edit broadcast (for real-time updates to other users)
   editMessage(messageId: string, text: string): void {
     if (!this.socket || !this.boardId) return;
 
@@ -133,23 +136,31 @@ export class ChatSocketService {
     if (!this.socket) return;
 
     this.socket.on("connect", () => {
-      // Connected to chat server
+      // eslint-disable-next-line no-console
+      console.log("✅ Connected to chat server");
     });
 
     this.socket.on("disconnect", () => {
-      // Disconnected from chat server
+      // eslint-disable-next-line no-console
+      console.log("❌ Disconnected from chat server");
     });
 
     this.socket.on("error", (error: Error) => {
-      // Socket error occurred
+      // eslint-disable-next-line no-console
+      console.error("🚨 Socket error:", error);
       throw error;
     });
   }
 
   // Event listener methods for components to subscribe
+  onConnect(callback: () => void): void {
+    if (!this.socket) return;
+    this.socket.on("connect", callback);
+  }
+
   onReceiveMessage(callback: (message: SocketMessage) => void): void {
     if (!this.socket) return;
-    this.socket.on("receiveMessage", callback);
+    this.socket.on("newMessage", callback);
   }
 
   onUserJoined(callback: (data: UserJoinedEvent) => void): void {
@@ -183,9 +194,14 @@ export class ChatSocketService {
   }
 
   // Remove event listeners
+  offConnect(): void {
+    if (!this.socket) return;
+    this.socket.off("connect");
+  }
+
   offReceiveMessage(): void {
     if (!this.socket) return;
-    this.socket.off("receiveMessage");
+    this.socket.off("newMessage");
   }
 
   offUserJoined(): void {

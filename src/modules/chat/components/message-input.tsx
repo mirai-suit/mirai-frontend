@@ -140,7 +140,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   const filteredUsers = boardUsers.filter((user) =>
     `${user.firstName} ${user.lastName}`
       .toLowerCase()
-      .includes(mentionQuery.toLowerCase())
+      .includes(mentionQuery.toLowerCase()),
   );
 
   return (
@@ -186,9 +186,6 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       <div className="flex gap-2 items-end">
         <Textarea
           ref={inputRef}
-          classNames={{
-            input: "min-h-[40px]",
-          }}
           endContent={
             <Button
               isIconOnly
@@ -203,6 +200,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             </Button>
           }
           maxRows={4}
+          minRows={1}
           placeholder={
             replyToMessage
               ? `Reply to ${replyToMessage.sender.firstName}...`

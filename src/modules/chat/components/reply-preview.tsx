@@ -17,7 +17,10 @@ export const ReplyPreview: React.FC<ReplyPreviewProps> = ({
     <Card className="bg-default-100" shadow="none">
       <CardBody className="px-3 py-2">
         <div className="flex items-start gap-2">
-          <ArrowBendDoubleUpLeft size={16} className="text-default-500 mt-0.5 flex-shrink-0" />
+          <ArrowBendDoubleUpLeft
+            className="text-default-500 mt-0.5 flex-shrink-0"
+            size={16}
+          />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-default-600">
               Replying to {message.sender.firstName} {message.sender.lastName}
@@ -28,10 +31,10 @@ export const ReplyPreview: React.FC<ReplyPreviewProps> = ({
           </div>
           <Button
             isIconOnly
+            className="text-default-400 hover:text-default-600"
             size="sm"
             variant="light"
             onPress={onClear}
-            className="text-default-400 hover:text-default-600"
           >
             <X size={14} />
           </Button>

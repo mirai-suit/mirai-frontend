@@ -20,11 +20,11 @@ export const chatService = {
   // Send a message to a board
   async sendMessage(
     boardId: string,
-    messageData: SendMessageInput,
+    messageData: SendMessageInput
   ): Promise<SendMessageResponse> {
     const response = await apiClient.post(
       `/chats/${boardId}/messages`,
-      messageData,
+      messageData
     );
 
     return response.data;
@@ -33,10 +33,15 @@ export const chatService = {
   // Get paginated messages for a board
   async getMessages(
     boardId: string,
-    params: GetMessagesInput = { page: 1, limit: 20 },
+    params: GetMessagesInput = { page: 1, limit: 20 }
   ): Promise<GetMessagesResponse> {
+    // Convert page/limit to skip/take for backend compatibility
+    const { page = 1, limit = 20 } = params;
+    const skip = (page - 1) * limit;
+    const take = limit;
+
     const response = await apiClient.get(`/chats/${boardId}/messages`, {
-      params,
+      params: { skip, take },
     });
 
     return response.data;
@@ -45,7 +50,7 @@ export const chatService = {
   // Search messages in a board
   async searchMessages(
     boardId: string,
-    searchParams: SearchMessagesInput,
+    searchParams: SearchMessagesInput
   ): Promise<SearchMessagesResponse> {
     const response = await apiClient.get(`/chats/${boardId}/messages/search`, {
       params: searchParams,
@@ -56,7 +61,7 @@ export const chatService = {
 
   // Get board users for mentions autocomplete
   async getBoardUsersForMentions(
-    boardId: string,
+    boardId: string
   ): Promise<GetBoardUsersResponse> {
     const response = await apiClient.get(`/chats/${boardId}/users/mentions`);
 
@@ -66,11 +71,11 @@ export const chatService = {
   // Edit a message
   async editMessage(
     messageId: string,
-    messageData: EditMessageInput,
+    messageData: EditMessageInput
   ): Promise<EditMessageResponse> {
     const response = await apiClient.put(
       `/chats/messages/${messageId}`,
-      messageData,
+      messageData
     );
 
     return response.data;

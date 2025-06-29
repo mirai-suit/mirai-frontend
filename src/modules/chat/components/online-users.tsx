@@ -1,7 +1,7 @@
+import type { BoardUser } from "../types";
+
 import React from "react";
 import { User, ScrollShadow } from "@heroui/react";
-
-import type { BoardUser } from "../types";
 
 interface OnlineUsersProps {
   boardUsers: BoardUser[];
@@ -16,15 +16,13 @@ export const OnlineUsers: React.FC<OnlineUsersProps> = ({ boardUsers }) => {
         Team Members ({boardUsers.length})
       </span>
       <ScrollShadow
-        orientation="horizontal"
-        className="flex gap-2 pb-2"
         hideScrollBar
+        className="flex gap-2 pb-2"
+        orientation="horizontal"
       >
         {boardUsers.map((user) => (
           <User
             key={user.id}
-            name={`${user.firstName} ${user.lastName}`}
-            description={user.email}
             avatarProps={{
               src: user.avatar,
               name: `${user.firstName} ${user.lastName}`,
@@ -35,6 +33,8 @@ export const OnlineUsers: React.FC<OnlineUsersProps> = ({ boardUsers }) => {
               name: "text-sm font-medium",
               description: "text-xs text-default-500",
             }}
+            description={user.email}
+            name={`${user.firstName} ${user.lastName}`}
           />
         ))}
       </ScrollShadow>

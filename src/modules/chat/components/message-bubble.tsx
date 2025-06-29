@@ -20,7 +20,7 @@ import {
 } from "@phosphor-icons/react";
 
 import { useChatStore } from "../store";
-import { useEditMessage, useDeleteMessage } from "../api";
+import { useDeleteMessage } from "../api/chat.api";
 
 interface MessageBubbleProps {
   message: Message;
@@ -36,7 +36,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   const { setReplyToMessage, startEditingMessage } = useChatStore();
   const [showActions, setShowActions] = useState(false);
 
-  const editMessageMutation = useEditMessage();
   const deleteMessageMutation = useDeleteMessage();
 
   const handleReply = () => {
@@ -54,7 +53,11 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         boardId: message.threadId,
       });
     } catch (error) {
-      console.error("Failed to delete message:", error);
+      // Error handling is done by the mutation's onError callback
+      if (error instanceof Error) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to delete message:", error.message);
+      }
     }
   };
 

@@ -26,10 +26,10 @@ export const ChatFloatingButton: FC<ChatFloatingButtonProps> = ({
         size="sm"
       >
         <Button
+          isIconOnly
           aria-label={`${isChatOpen ? "Close" : "Open"} board chat`}
           className="h-14 w-14 shadow-lg"
           color={isChatOpen ? "primary" : "default"}
-          isIconOnly
           size="lg"
           variant={isChatOpen ? "solid" : "flat"}
           onPress={toggleChat}

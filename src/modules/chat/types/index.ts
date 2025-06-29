@@ -50,8 +50,7 @@ export interface BoardUser {
 // API Response Types
 export interface SendMessageResponse {
   success: boolean;
-  message: string;
-  data: Message;
+  message: Message; // Changed from string to Message to match actual response
 }
 
 export interface GetMessagesResponse {
