@@ -136,7 +136,7 @@ export const NotesDrawer: React.FC<NotesDrawerProps> = ({
                 placeholder="Search notes..."
                 startContent={<MagnifyingGlass size={16} />}
                 value={searchQuery}
-                variant="bordered"
+                variant="flat"
                 onValueChange={setSearchQuery}
               />
 

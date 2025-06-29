@@ -18,6 +18,7 @@ import { NotesDrawer } from "../components/notes-drawer";
 import { ColumnCard } from "../../column/components/column-card";
 import { ColumnSkeleton } from "../../column/components/column-skeleton";
 import { CreateColumnModal } from "../../column/components/create-column-modal";
+import { FloatingChatButton, ChatDrawer } from "../../chat/components";
 import { useGetColumnsForBoard } from "../../column/api";
 import { useTasksForBoard } from "../../task/api";
 import { QuickFilterChips } from "../../task/components/quick-filter-chips";
@@ -37,6 +38,7 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
   const { setCurrentBoard } = useBoardStore();
   const createColumnModal = useDisclosure();
   const notesDrawer = useDisclosure();
+  const chatDrawer = useDisclosure();
 
   const { data: boardResponse, isLoading, isError, error } = useBoard(boardId!);
   const { data: columnsResponse, isLoading: isLoadingColumns } =
@@ -299,6 +301,14 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
         boardId={boardId!}
         isOpen={notesDrawer.isOpen}
         onClose={notesDrawer.onClose}
+      />
+
+      {/* Chat Integration */}
+      <FloatingChatButton onPress={chatDrawer.onOpen} />
+      <ChatDrawer
+        boardId={boardId!}
+        isOpen={chatDrawer.isOpen}
+        onClose={chatDrawer.onClose}
       />
     </div>
   );
