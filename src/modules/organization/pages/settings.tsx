@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { Gear, Users, Shield, Notification } from "@phosphor-icons/react";
 
 import { MembersManagement } from "../components/members-management";
+import { BoardAccessManagement } from "../components/board-access-management";
 
 import { WithPermission } from "@/components/role-based-access";
 
@@ -76,6 +77,15 @@ export const OrganizationSettingsPage: React.FC = () => {
                 </div>
               }
             />
+            <Tab
+              key="board-access"
+              title={
+                <div className="flex items-center gap-2">
+                  <Shield size={18} />
+                  <span>Board Access</span>
+                </div>
+              }
+            />
           </Tabs>
         </CardHeader>
 
@@ -132,6 +142,22 @@ export const OrganizationSettingsPage: React.FC = () => {
                 </p>
               </div>
             </div>
+          )}
+
+          {selectedTab === "board-access" && (
+            <WithPermission
+              permission="accessAllBoards"
+              fallback={
+                <div className="text-center py-8">
+                  <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
+                  <p className="text-default-500">
+                    You don&apos;t have permission to manage board access.
+                  </p>
+                </div>
+              }
+            >
+              <BoardAccessManagement organizationId={orgId} />
+            </WithPermission>
           )}
         </CardBody>
       </Card>
