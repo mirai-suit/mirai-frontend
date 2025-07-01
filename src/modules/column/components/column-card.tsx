@@ -13,12 +13,13 @@ import {
   ScrollShadow,
 } from "@heroui/react";
 import { DotsThree, Plus, PencilSimple } from "@phosphor-icons/react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, Reorder } from "framer-motion";
 
 import { Column } from "../../board/types";
 import { Task } from "../../task/types";
 import { CreateTaskModal } from "../../task/components/create-task-modal";
 import { TaskCard } from "../../task/components/task-card";
+import { useReorderTasks } from "../../task/api";
 import { TaskViewModal } from "../../task/components/task-view-modal";
 
 import { EditColumnModal } from "./edit-column-modal";
@@ -35,6 +36,8 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
   column,
   tasks = [],
 }) => {
+  const [orderedTasks, setOrderedTasks] = React.useState(tasks);
+  const reorderMutation = useReorderTasks();
   const { boardId } = useParams();
   const { hasPermission } = useOrgStore();
   const editModal = useDisclosure();
@@ -66,6 +69,21 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
   const handleTaskViewClose = () => {
     setSelectedTaskId(null);
     taskViewModal.onClose();
+  };
+
+  // Keep local state in sync with prop changes
+  React.useEffect(() => {
+    setOrderedTasks(tasks);
+  }, [tasks]);
+
+  const handleReorder = (newOrder: typeof orderedTasks) => {
+    setOrderedTasks(newOrder);
+    if (newOrder.length > 0 && newOrder[0].columnId) {
+      reorderMutation.mutate({
+        columnId: newOrder[0].columnId,
+        taskIds: newOrder.map((t) => t.id),
+      });
+    }
   };
 
   return (
@@ -104,22 +122,61 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
         <CardBody className="pt-0">
           {/* Task list */}
           <ScrollShadow className="max-h-[calc(100vh-350px)]">
-            <AnimatePresence initial={false} mode="popLayout">
-              <div className="space-y-2 mb-4">
-                {tasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => handleTaskClick(task.id)}
-                  />
+            <Reorder.Group
+              axis="y"
+              className="space-y-2 mb-4"
+              values={orderedTasks}
+              onReorder={handleReorder}
+            >
+              <AnimatePresence initial={false} mode="popLayout">
+                {orderedTasks.map((task) => (
+                  <Reorder.Item key={task.id} value={task}>
+                    <div className="flex items-center group">
+                      {/* Drag handle */}
+                      <button
+                        aria-label="Drag to reorder"
+                        className="mr-2 cursor-grab active:cursor-grabbing opacity-60 group-hover:opacity-100 transition"
+                        style={{
+                          WebkitTouchCallout: "none",
+                          WebkitUserSelect: "none",
+                          userSelect: "none",
+                        }}
+                        tabIndex={-1}
+                        type="button"
+                        onClick={(e) => e.preventDefault()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
+                        <svg
+                          fill="none"
+                          height="18"
+                          viewBox="0 0 20 20"
+                          width="18"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle cx="6" cy="6" fill="currentColor" r="1.5" />
+                          <circle cx="6" cy="10" fill="currentColor" r="1.5" />
+                          <circle cx="6" cy="14" fill="currentColor" r="1.5" />
+                          <circle cx="14" cy="6" fill="currentColor" r="1.5" />
+                          <circle cx="14" cy="10" fill="currentColor" r="1.5" />
+                          <circle cx="14" cy="14" fill="currentColor" r="1.5" />
+                        </svg>
+                      </button>
+                      <div className="flex-1">
+                        <TaskCard
+                          task={task}
+                          onClick={() => handleTaskClick(task.id)}
+                        />
+                      </div>
+                    </div>
+                  </Reorder.Item>
                 ))}
-                {tasks.length === 0 && (
+                {orderedTasks.length === 0 && (
                   <div className="text-center py-4 text-default-400 text-sm">
                     No tasks match the current filters
                   </div>
                 )}
-              </div>
-            </AnimatePresence>
+              </AnimatePresence>
+            </Reorder.Group>
           </ScrollShadow>
 
           {/* Add task button */}
@@ -158,8 +215,8 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
       />
 
       <TaskViewModal
-        taskId={selectedTaskId}
         isOpen={taskViewModal.isOpen}
+        taskId={selectedTaskId}
         onClose={handleTaskViewClose}
       />
     </>

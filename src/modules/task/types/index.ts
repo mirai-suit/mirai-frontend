@@ -42,6 +42,23 @@ export interface TaskTeam {
   name: string;
 }
 
+// Task Attachment
+export interface TaskAttachment {
+  id: string;
+  filename: string;
+  fileSize: number;
+  mimeType: string;
+  fileType: "VOICE_NOTE" | "IMAGE" | "DOCUMENT" | "VIDEO" | "OTHER";
+  downloadUrl?: string;
+  uploadedBy: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatar?: string;
+  };
+  createdAt: string;
+}
+
 // Base Task (minimal data)
 export interface Task {
   id: string;
@@ -68,6 +85,7 @@ export interface TaskDetail extends Task {
   column: TaskColumn;
   board?: TaskBoard;
   team?: TaskTeam;
+  attachments?: TaskAttachment[];
 }
 
 // API Request Types

@@ -1,3 +1,64 @@
+// Reorder tasks in a column
+export const useReorderTasks = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { success: boolean; message: string; tasks: any[] },
+    Error,
+    { columnId: string; taskIds: string[] }
+  >({
+    mutationFn: ({ columnId, taskIds }) => {
+      console.log("[MUTATION] Calling reorderTasks", { columnId, taskIds });
+
+      return taskService.reorderTasks(columnId, taskIds);
+    },
+    onMutate: async ({ columnId, taskIds }) => {
+      console.log("[onMutate] Optimistically updating cache", {
+        columnId,
+        taskIds,
+      });
+      await queryClient.cancelQueries({ queryKey: taskKeys.column(columnId) });
+      const previous = queryClient.getQueryData<any>(taskKeys.column(columnId));
+
+      if (previous && previous.tasks) {
+        queryClient.setQueryData(taskKeys.column(columnId), {
+          ...previous,
+          tasks: taskIds.map((id) =>
+            previous.tasks.find((t: any) => t.id === id)
+          ),
+        });
+      }
+
+      return { previous };
+    },
+    onError: (err, { columnId }, context) => {
+      console.error("[onError] Reorder failed", err);
+      if (context) {
+        queryClient.setQueryData(
+          taskKeys.column(columnId),
+          (context as any).previous
+        );
+      }
+      addToast({
+        title: "Reorder Failed",
+        description: "Failed to reorder tasks. Please try again.",
+        color: "danger",
+      });
+    },
+    onSettled: (_data, _error, { columnId }) => {
+      console.log("[onSettled] Invalidating column cache", { columnId });
+      queryClient.invalidateQueries({ queryKey: taskKeys.column(columnId) });
+    },
+    onSuccess: (data) => {
+      console.log("[onSuccess] Reorder success", data);
+      addToast({
+        title: "Tasks Reordered",
+        description: data.message,
+        color: "success",
+      });
+    },
+  });
+};
 import type {
   CreateTaskRequest,
   CreateTaskResponse,
@@ -35,7 +96,7 @@ export const taskKeys = {
 // Get tasks for a board
 export const useTasksForBoard = (
   boardId: string,
-  options?: UseQueryOptions<GetTasksResponse>,
+  options?: UseQueryOptions<GetTasksResponse>
 ) => {
   return useQuery({
     queryKey: taskKeys.board(boardId),
@@ -48,7 +109,7 @@ export const useTasksForBoard = (
 // Get tasks for a column
 export const useTasksForColumn = (
   columnId: string,
-  options?: UseQueryOptions<GetTasksResponse>,
+  options?: UseQueryOptions<GetTasksResponse>
 ) => {
   return useQuery({
     queryKey: taskKeys.column(columnId),
@@ -61,7 +122,7 @@ export const useTasksForColumn = (
 // Get single task
 export const useTask = (
   taskId: string,
-  options?: UseQueryOptions<GetTaskResponse>,
+  options?: UseQueryOptions<GetTaskResponse>
 ) => {
   return useQuery({
     queryKey: taskKeys.detail(taskId),
@@ -100,6 +161,52 @@ export const useCreateTask = () => {
       addToast({
         title: "Task Created",
         description: `"${data.task.title}" has been created successfully!`,
+        color: "success",
+      });
+    },
+    onError: () => {
+      // Show error toast
+      addToast({
+        title: "Creation Failed",
+        description: "Failed to create task. Please try again.",
+        color: "danger",
+      });
+    },
+  });
+};
+
+// Create task with files mutation
+export const useCreateTaskWithFiles = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    CreateTaskResponse,
+    Error,
+    { data: CreateTaskRequest; files: File[] }
+  >({
+    mutationFn: ({ data, files }) =>
+      taskService.createTaskWithFiles(data, files),
+    onSuccess: (data, variables) => {
+      // Invalidate the same queries as regular task creation
+      queryClient.invalidateQueries({
+        queryKey: boardKeys.detail(variables.data.boardId),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: columnKeys.board(variables.data.boardId),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.board(variables.data.boardId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.column(variables.data.columnId),
+      });
+
+      // Show success toast
+      addToast({
+        title: "Task Created",
+        description: `"${data.task.title}" has been created with ${variables.files.length} attachments!`,
         color: "success",
       });
     },

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -25,9 +25,11 @@ import {
   TASK_STATUSES,
 } from "../validations";
 import { type CreateTaskRequest } from "../types";
+import { useCreateTask, useCreateTaskWithFiles } from "../api";
 
-import { useCreateTask } from "../api";
 import { AssigneeSelect } from "./assignee-select";
+import { VoiceRecorder } from "./voice-recorder";
+import { FileUpload } from "./file-upload";
 
 import { WithPermission } from "@/components/role-based-access";
 import { useOrganizationMembers } from "@/modules/organization/api";
@@ -50,6 +52,10 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 }) => {
   const { currentOrg } = useOrgStore();
   const createTaskMutation = useCreateTask();
+  const createTaskWithFilesMutation = useCreateTaskWithFiles();
+
+  // File attachment state
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
   // Get organization members for assignment
   const { data: membersResponse } = useOrganizationMembers(
@@ -111,7 +117,16 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         assigneeIds: data.assigneeIds || [],
       };
 
-      await createTaskMutation.mutateAsync(requestData);
+      // Use different mutation based on whether files are attached
+      if (attachedFiles.length > 0) {
+        await createTaskWithFilesMutation.mutateAsync({
+          data: requestData,
+          files: attachedFiles,
+        });
+      } else {
+        await createTaskMutation.mutateAsync(requestData);
+      }
+
       handleClose();
     } catch {
       // Error handling is done in the mutation
@@ -120,7 +135,29 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
   const handleClose = () => {
     reset();
+    setAttachedFiles([]); // Clear attached files
     onClose();
+  };
+
+  // File handling functions
+  const handleFileUpload = (files: File[]) => {
+    setAttachedFiles((prev) => [...prev, ...files]);
+  };
+
+  const handleVoiceRecording = (recording: {
+    blob: Blob;
+    duration: number;
+  }) => {
+    // Convert blob to file
+    const file = new File([recording.blob], `voice-note-${Date.now()}.webm`, {
+      type: "audio/webm",
+    });
+
+    setAttachedFiles((prev) => [...prev, file]);
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -320,6 +357,23 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                   />
                 )}
               />
+
+              {/* Attachments Section */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium text-gray-700">
+                  Attachments (Optional)
+                </h4>
+                {/* Voice Recorder */}
+                <VoiceRecorder
+                  onRecordingComplete={handleVoiceRecording}
+                />{" "}
+                {/* File Upload */}
+                <FileUpload
+                  selectedFiles={attachedFiles}
+                  onFilesSelected={handleFileUpload}
+                  onRemoveFile={handleRemoveFile}
+                />
+              </div>
             </ModalBody>
 
             <ModalFooter>

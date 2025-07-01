@@ -211,10 +211,15 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
               {columns
                 .sort((a, b) => a.order - b.order)
                 .map((column, index) => {
-                  // Filter tasks for this column from the filtered tasks
-                  const columnTasks = filteredTasks.filter(
-                    (task) => task.columnId === column.id,
-                  );
+                  // Filter and sort tasks for this column by order (fallback to createdAt)
+                  const columnTasks = filteredTasks
+                    .filter((task) => task.columnId === column.id)
+                    .sort(
+                      (a, b) =>
+                        a.order - b.order ||
+                        new Date(a.createdAt).getTime() -
+                          new Date(b.createdAt).getTime()
+                    );
 
                   return (
                     <motion.div

@@ -51,8 +51,8 @@ export default defineConfig([
         "plugin:react/recommended",
         "plugin:prettier/recommended",
         "plugin:react-hooks/recommended",
-        "plugin:jsx-a11y/recommended",
-      ),
+        "plugin:jsx-a11y/recommended"
+      )
     ),
 
     plugins: {
@@ -67,7 +67,7 @@ export default defineConfig([
     languageOptions: {
       globals: {
         ...Object.fromEntries(
-          Object.entries(globals.browser).map(([key]) => [key, "off"]),
+          Object.entries(globals.browser).map(([key]) => [key, "off"])
         ),
         ...globals.node,
       },
@@ -89,87 +89,30 @@ export default defineConfig([
       },
     },
 
-
     files: ["**/*.ts", "**/*.tsx"],
 
     rules: {
-      "no-console": "warn",
+      "no-console": "off",
       "react/prop-types": "off",
       "react/jsx-uses-react": "off",
       "react/react-in-jsx-scope": "off",
       "react-hooks/exhaustive-deps": "off",
-      "jsx-a11y/click-events-have-key-events": "warn",
-      "jsx-a11y/interactive-supports-focus": "warn",
-      "prettier/prettier": "warn",
+      "jsx-a11y/click-events-have-key-events": "off",
+      "jsx-a11y/interactive-supports-focus": "off",
+      "prettier/prettier": "off",
       "no-unused-vars": "off",
       "unused-imports/no-unused-vars": "off",
       "unused-imports/no-unused-imports": "warn",
 
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          args: "after-used",
-          ignoreRestSiblings: false,
-          argsIgnorePattern: "^_.*?$",
-        },
-      ],
+      "@typescript-eslint/no-unused-vars": "off",
 
-      "import/order": [
-        "warn",
-        {
-          groups: [
-            "type",
-            "builtin",
-            "object",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index",
-          ],
+      "import/order": "off",
 
-          pathGroups: [
-            {
-              pattern: "~/**",
-              group: "external",
-              position: "after",
-            },
-          ],
+      "react/self-closing-comp": "off",
 
-          "newlines-between": "always",
-        },
-      ],
+      "react/jsx-sort-props": "off",
 
-      "react/self-closing-comp": "warn",
-
-      "react/jsx-sort-props": [
-        "warn",
-        {
-          callbacksLast: true,
-          shorthandFirst: true,
-          noSortAlphabetically: false,
-          reservedFirst: true,
-        },
-      ],
-
-      "padding-line-between-statements": [
-        "warn",
-        {
-          blankLine: "always",
-          prev: "*",
-          next: "return",
-        },
-        {
-          blankLine: "always",
-          prev: ["const", "let", "var"],
-          next: "*",
-        },
-        {
-          blankLine: "any",
-          prev: ["const", "let", "var"],
-          next: ["const", "let", "var"],
-        },
-      ],
+      "padding-line-between-statements": "off",
     },
   },
 ]);

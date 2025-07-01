@@ -1,3 +1,12 @@
+// Reorder tasks in a column (using apiClient for consistency)
+async function reorderTasks(columnId: string, taskIds: string[]) {
+  console.log("[SERVICE] reorderTasks called", { columnId, taskIds });
+  const response = await apiClient.patch(`/task/column/${columnId}/reorder`, {
+    taskIds,
+  });
+
+  return response.data;
+}
 import type {
   CreateTaskRequest,
   CreateTaskResponse,
@@ -16,9 +25,54 @@ import type {
 import apiClient from "../../../libs/axios/interceptor";
 
 export const taskService = {
+  reorderTasks,
   // Create a new task
   async createTask(data: CreateTaskRequest): Promise<CreateTaskResponse> {
     const response = await apiClient.post("/task", data);
+
+    return response.data;
+  },
+
+  // Create a new task with file attachments
+  async createTaskWithFiles(
+    data: CreateTaskRequest,
+    files: File[]
+  ): Promise<CreateTaskResponse> {
+    const formData = new FormData();
+
+    // Add task data as form fields
+    formData.append("title", data.title);
+    formData.append("description", data.description || "");
+    formData.append("status", data.status || "NOT_STARTED");
+    formData.append("customStatus", data.customStatus || "");
+    formData.append("priority", data.priority || "MEDIUM");
+    formData.append("boardId", data.boardId);
+    formData.append("columnId", data.columnId);
+
+    // Only append teamId if it exists and is not empty
+    if (data.teamId && data.teamId.trim() !== "") {
+      formData.append("teamId", data.teamId);
+    }
+
+    formData.append("order", (data.order || 0).toString());
+    formData.append("isRecurring", (data.isRecurring || false).toString());
+
+    if (data.startDate) formData.append("startDate", data.startDate);
+    if (data.dueDate) formData.append("dueDate", data.dueDate);
+
+    // Add assignee IDs (match the backend expectation)
+    if (data.assigneeIds && data.assigneeIds.length > 0) {
+      data.assigneeIds.forEach((id) => formData.append("assigneeIds", id));
+    }
+
+    // Add files
+    files.forEach((file) => formData.append("attachments", file));
+
+    const response = await apiClient.post("/task", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     return response.data;
   },
@@ -47,7 +101,7 @@ export const taskService = {
   // Update a task
   async updateTask(
     taskId: string,
-    data: UpdateTaskRequest,
+    data: UpdateTaskRequest
   ): Promise<UpdateTaskResponse> {
     const response = await apiClient.put(`/task/${taskId}`, data);
 
@@ -57,7 +111,7 @@ export const taskService = {
   // Move a task between columns
   async moveTask(
     taskId: string,
-    data: MoveTaskRequest,
+    data: MoveTaskRequest
   ): Promise<MoveTaskResponse> {
     const response = await apiClient.patch(`/task/${taskId}/move`, data);
 
@@ -67,7 +121,7 @@ export const taskService = {
   // Assign users to a task
   async assignUsers(
     taskId: string,
-    data: AssignUsersRequest,
+    data: AssignUsersRequest
   ): Promise<AssignUsersResponse> {
     const response = await apiClient.patch(`/task/${taskId}/assign`, data);
 
@@ -95,7 +149,7 @@ export const taskService = {
     if (params.search) searchParams.append("search", params.search);
 
     const response = await apiClient.get(
-      `/task/search?${searchParams.toString()}`,
+      `/task/search?${searchParams.toString()}`
     );
 
     return response.data;
