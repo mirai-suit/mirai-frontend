@@ -62,15 +62,6 @@ export const TaskViewModal: React.FC<TaskViewModalProps> = ({
 
   const task = taskResponse?.task;
 
-  // Debug: Log the task data to see if attachments are present
-  React.useEffect(() => {
-    if (task) {
-      console.log("Task data:", task);
-      console.log("Attachments:", task.attachments);
-      console.log("Attachments length:", task.attachments?.length);
-    }
-  }, [task]);
-
   // Check if current user can update task status
   const canUpdateStatus = React.useMemo(() => {
     if (!user || !task) return false;
@@ -308,50 +299,18 @@ export const TaskViewModal: React.FC<TaskViewModalProps> = ({
                     )}
                   </div>
 
-                  {/* Attachments Section - Debug: Always show */}
-                  <Divider />
-                  <div>
-                    <h3 className="text-sm font-medium mb-3">
-                      🔍 DEBUG: Attachments (Count:{" "}
-                      {task.attachments?.length || 0})
-                    </h3>
-                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                      <p>
-                        <strong>Debug Info:</strong>
-                      </p>
-                      <p>Task ID: {task.id}</p>
-                      <p>Attachments type: {typeof task.attachments}</p>
-                      <p>
-                        Is array:{" "}
-                        {Array.isArray(task.attachments) ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        Raw data: {JSON.stringify(task.attachments, null, 2)}
-                      </p>
-                    </div>
-                    {!task.attachments ? (
+                  {/* Attachments Section */}
+                  {task.attachments && task.attachments.length > 0 && (
+                    <>
+                      <Divider />
                       <div>
-                        <p className="text-red-500">
-                          ❌ Attachments is undefined
-                        </p>
-                        <TaskAttachmentsView attachments={[]} />
-                      </div>
-                    ) : task.attachments.length === 0 ? (
-                      <div>
-                        <p className="text-yellow-500">
-                          ⚠️ Attachments array is empty
-                        </p>
+                        <h3 className="text-sm font-medium mb-3">
+                          Attachments
+                        </h3>
                         <TaskAttachmentsView attachments={task.attachments} />
                       </div>
-                    ) : (
-                      <div>
-                        <p className="text-green-500">
-                          ✅ Attachments found: {task.attachments.length}
-                        </p>
-                        <TaskAttachmentsView attachments={task.attachments} />
-                      </div>
-                    )}
-                  </div>
+                    </>
+                  )}
 
                   <Divider />
 

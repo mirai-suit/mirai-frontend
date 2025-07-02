@@ -262,36 +262,14 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
     timeStyle: "short",
   });
 
-  // Debug: Log the attachments data
-  React.useEffect(() => {
-    console.log("TaskAttachmentsView received attachments:", attachments);
-    console.log("Attachments length:", attachments?.length);
-    if (attachments?.length > 0) {
-      console.log("First attachment:", attachments[0]);
-    }
-  }, [attachments]);
-
-  // Always show something for debugging
-  console.log(
-    "Rendering TaskAttachmentsView with:",
-    attachments?.length || 0,
-    "attachments"
-  );
-
   if (!attachments || attachments.length === 0) {
     return (
-      <div className="p-4">
-        <h4 className="text-lg font-semibold mb-4">Attachments</h4>
-        <Card>
-          <CardBody className="text-center py-8">
-            <FileText className="mx-auto text-default-300" size={48} />
-            <p className="text-default-500 mt-2">No attachments found</p>
-            <p className="text-xs text-default-400 mt-1">
-              Debug: Received {attachments?.length || 0} attachments
-            </p>
-          </CardBody>
-        </Card>
-      </div>
+      <Card>
+        <CardBody className="text-center py-8">
+          <FileText className="mx-auto text-default-300" size={48} />
+          <p className="text-default-500 mt-2">No attachments found</p>
+        </CardBody>
+      </Card>
     );
   }
 
@@ -407,15 +385,38 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
           </div>
         )}
 
-        {(type === "documents" || type === "all") && (
+        {type === "documents" && (
           <div className="space-y-3">
-            {(type === "all" ? attachments : filteredAttachments).map(
-              (attachment) => {
-                if (
-                  attachment.fileType === "VOICE_NOTE" ||
-                  attachment.mimeType.startsWith("audio/")
-                ) {
-                  return (
+            {filteredAttachments.map((attachment) => (
+              <div key={attachment.id}>
+                <DocumentPreview attachment={attachment} />
+                <div className="mt-2 text-xs text-default-500 flex items-center gap-4">
+                  <span className="flex items-center gap-1">
+                    <User size={12} />
+                    {attachment.uploadedBy.firstName}{" "}
+                    {attachment.uploadedBy.lastName}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar size={12} />
+                    {dateFormatter.format(new Date(attachment.createdAt))}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {type === "all" && (
+          <div className="space-y-6">
+            {/* Voice Notes Section */}
+            {voiceNotes.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <FileAudio size={16} />
+                  Voice Notes ({voiceNotes.length})
+                </h4>
+                <div className="space-y-3">
+                  {voiceNotes.map((attachment) => (
                     <div key={attachment.id}>
                       <VoicePlayer attachment={attachment} />
                       <div className="mt-2 text-xs text-default-500 flex items-center gap-4">
@@ -430,15 +431,21 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
                         </span>
                       </div>
                     </div>
-                  );
-                }
+                  ))}
+                </div>
+              </div>
+            )}
 
-                if (
-                  attachment.fileType === "IMAGE" ||
-                  attachment.mimeType.startsWith("image/")
-                ) {
-                  return (
-                    <div key={attachment.id} className="inline-block">
+            {/* Images Section */}
+            {images.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <FileImage size={16} />
+                  Images ({images.length})
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {images.map((attachment) => (
+                    <div key={attachment.id}>
                       <ImagePreview attachment={attachment} />
                       <div className="mt-2 text-xs text-default-500">
                         <p className="flex items-center gap-1">
@@ -452,26 +459,37 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
                         </p>
                       </div>
                     </div>
-                  );
-                }
+                  ))}
+                </div>
+              </div>
+            )}
 
-                return (
-                  <div key={attachment.id}>
-                    <DocumentPreview attachment={attachment} />
-                    <div className="mt-2 text-xs text-default-500 flex items-center gap-4">
-                      <span className="flex items-center gap-1">
-                        <User size={12} />
-                        {attachment.uploadedBy.firstName}{" "}
-                        {attachment.uploadedBy.lastName}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar size={12} />
-                        {dateFormatter.format(new Date(attachment.createdAt))}
-                      </span>
+            {/* Documents Section */}
+            {documents.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                  <FileText size={16} />
+                  Documents ({documents.length})
+                </h4>
+                <div className="space-y-3">
+                  {documents.map((attachment) => (
+                    <div key={attachment.id}>
+                      <DocumentPreview attachment={attachment} />
+                      <div className="mt-2 text-xs text-default-500 flex items-center gap-4">
+                        <span className="flex items-center gap-1">
+                          <User size={12} />
+                          {attachment.uploadedBy.firstName}{" "}
+                          {attachment.uploadedBy.lastName}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar size={12} />
+                          {dateFormatter.format(new Date(attachment.createdAt))}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                );
-              }
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -480,15 +498,11 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
   };
 
   return (
-    <div className="p-4">
-      <h4 className="text-lg font-semibold mb-4">
-        Attachments ({attachments.length})
-      </h4>
+    <div>
       <Tabs
         aria-label="Attachment types"
         color="primary"
         variant="underlined"
-        defaultSelectedKey="all"
         classNames={{
           tabList:
             "gap-6 w-full relative rounded-none p-0 border-b border-divider",
