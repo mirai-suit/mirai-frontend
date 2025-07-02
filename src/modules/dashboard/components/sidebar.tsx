@@ -66,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar */}
       <motion.aside
         aria-label="Application sidebar"
-        className={`fixed lg:relative z-50 h-full bg-content1 border-r border-divider flex flex-col
+        className={`fixed lg:relative z-50 h-full bg-transparent border-divider flex flex-col
                    transition-all duration-300 ease-in-out ${sidebarWidth}
                    ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
         initial={false}

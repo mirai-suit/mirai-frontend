@@ -102,6 +102,9 @@ export default function DashboardLayout() {
 
   return (
     <div className="flex h-screen bg-background text-foreground">
+        <div className="fixed inset-0 z-0">
+          <img src="/backgrounds/bbblurry.svg" alt="" className="object-cover w-full h-full" />
+        </div>
       {/* Mandatory Organization Creation Modal */}
       {showMandatoryOrgModal && (
         <MandatoryOrgCreationModal

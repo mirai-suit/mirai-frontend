@@ -99,7 +99,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   };
 
   return (
-    <div className="h-16 border-b border-divider flex items-center justify-between px-3">
+    <div className="h-16 border-divider flex items-center justify-between px-3">
       {/* Logo Section */}
       <div className="flex items-center">
         {/* Mobile Close Button */}

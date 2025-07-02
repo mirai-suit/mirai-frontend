@@ -88,7 +88,7 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
 
   return (
     <>
-      <Card className="w-72 h-fit min-h-[200px]">
+      <Card className="w-72 h-fit min-h-[200px]" >
         <CardHeader className="flex items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <div

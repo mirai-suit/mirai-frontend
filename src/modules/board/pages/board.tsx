@@ -104,7 +104,7 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
       {/* Board Header */}
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between p-6 border-b border-divider"
+        className="flex items-center justify-between p-6 border-b border-divider relative z-20"
         initial={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
       >
@@ -163,7 +163,7 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
       {/* Board Filters */}
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="border-b border-divider px-6 py-3"
+        className="border-b border-divider px-6 py-3 relative z-20"
         initial={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.3, delay: 0.2 }}
       >

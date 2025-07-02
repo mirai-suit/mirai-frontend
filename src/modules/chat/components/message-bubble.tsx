@@ -84,7 +84,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   return (
     <div
-      className={`flex gap-3 group ${isOwn ? "flex-row-reverse" : "flex-row"}`}
+      className={`flex gap-3 group ${isOwn ? "flex-row-reverse" : "flex-row"} backdrop-blur-md`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
@@ -135,7 +135,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         <Card
           className={`relative ${
             isOwn
-              ? "bg-primary text-primary-foreground"
+              ? "bg-primary text-primary-foreground opacity-80"
               : "bg-default-100 text-default-900"
           }`}
           shadow="none"

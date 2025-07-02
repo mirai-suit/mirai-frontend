@@ -19,8 +19,9 @@ export const FloatingChatButton: React.FC<FloatingChatButtonProps> = ({
   return (
     <Button
       isIconOnly
-      className="fixed bottom-6 right-6 z-50 h-14 w-14 shadow-lg"
-      color="primary"
+      className="fixed bottom-6 right-6 z-50 h-14 w-14"
+      // color="primary"
+      variant="flat"
       radius="full"
       size="lg"
       onPress={handlePress}
