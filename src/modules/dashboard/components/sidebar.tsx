@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-divider">
+        <div className="p-3">
           {isCollapsed ? (
             <Tooltip content="Organization Settings" placement="right">
               <Button

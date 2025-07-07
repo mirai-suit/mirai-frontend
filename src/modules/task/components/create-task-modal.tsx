@@ -31,7 +31,7 @@ import { AssigneeSelect } from "./assignee-select";
 import { VoiceRecorder } from "./voice-recorder";
 import { FileUpload } from "./file-upload";
 
-import { WithPermission } from "@/components/role-based-access";
+import { WithBoardPermission } from "@/components/board-permission-components";
 import { useOrganizationMembers } from "@/modules/organization/api";
 import { useOrgStore } from "@/store/useOrgStore";
 
@@ -163,17 +163,16 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   return (
     <Modal isOpen={isOpen} placement="center" size="3xl" onClose={handleClose}>
       <ModalContent>
-        <WithPermission
+        <WithBoardPermission
           fallback={
             <div className="p-6 text-center">
               <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
-              <p className="text-sm text-default-500">
-                You don&apos;t have permission to create tasks in this
-                organization.
+              <p className="text-sm text-foreground-500">
+                You don&apos;t have permission to create tasks in this board.
               </p>
             </div>
           }
-          permission="createBoards"
+          permission="canCreateTasks"
         >
           <form onSubmit={handleSubmit(onSubmit)}>
             <ModalHeader className="flex flex-col gap-1">
@@ -360,7 +359,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
 
               {/* Attachments Section */}
               <div className="space-y-4">
-                <h4 className="text-sm font-medium text-gray-700">
+                <h4 className="text-sm font-medium text-foreground">
                   Attachments (Optional)
                 </h4>
                 {/* Voice Recorder */}
@@ -389,7 +388,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               </Button>
             </ModalFooter>
           </form>
-        </WithPermission>
+        </WithBoardPermission>
       </ModalContent>
     </Modal>
   );

@@ -31,10 +31,10 @@ export const boardService = {
 
   // Get all boards for an organization
   async getBoardsForOrganization(
-    organizationId: string,
+    organizationId: string
   ): Promise<GetBoardsResponse> {
     const response = await apiClient.get(
-      `/board/organization/${organizationId}`,
+      `/board/organization/${organizationId}`
     );
 
     return response.data;
@@ -43,7 +43,7 @@ export const boardService = {
   // Update a board
   async updateBoard(
     boardId: string,
-    updateData: UpdateBoardInput,
+    updateData: UpdateBoardInput
   ): Promise<UpdateBoardResponse> {
     const response = await apiClient.put(`/board/${boardId}`, updateData);
 
@@ -60,11 +60,11 @@ export const boardService = {
   // Add user to board
   async addUserToBoard(
     boardId: string,
-    accessData: BoardAccessInput,
+    accessData: BoardAccessInput
   ): Promise<BoardAccessResponse> {
     const response = await apiClient.post(
       `/board/${boardId}/access`,
-      accessData,
+      accessData
     );
 
     return response.data;
@@ -73,10 +73,10 @@ export const boardService = {
   // Remove user from board
   async removeUserFromBoard(
     boardId: string,
-    userId: string,
+    userId: string
   ): Promise<BoardAccessResponse> {
     const response = await apiClient.delete(
-      `/board/${boardId}/access/${userId}`,
+      `/board/${boardId}/access/${userId}`
     );
 
     return response.data;
@@ -86,10 +86,10 @@ export const boardService = {
   async changeUserBoardRole(
     boardId: string,
     userId: string,
-    accessRole: string,
+    role: string // Updated parameter name from accessRole to role
   ): Promise<BoardAccessResponse> {
     const response = await apiClient.put(`/board/${boardId}/access/${userId}`, {
-      accessRole,
+      role, // Updated field name from accessRole to role
     });
 
     return response.data;

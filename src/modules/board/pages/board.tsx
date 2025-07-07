@@ -26,7 +26,8 @@ import { useTaskFilterStore } from "../../task/store/useTaskFilterStore";
 import { applyFiltersAndSort } from "../../task/utils/taskFilters";
 import { useAuthStore } from "../../auth/store";
 
-import { WithPermission } from "@/components/role-based-access";
+import { WithBoardPermission } from "@/components/board-permission-components";
+import { useBoardPermissions } from "@/hooks/useBoardPermissions";
 
 interface BoardPageProps {
   // Add props if needed
@@ -48,6 +49,9 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
   const board = boardResponse?.board;
   const columns = columnsResponse?.columns || [];
   const tasks = tasksResponse?.tasks || [];
+
+  // Set up board permissions context (used for side effects)
+  useBoardPermissions(board);
 
   // Board-level filtering
   const { user } = useAuthStore();
@@ -246,13 +250,13 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
               >
                 <Card className="w-64 h-20">
                   <CardBody className="flex items-center justify-center">
-                    <WithPermission
+                    <WithBoardPermission
                       fallback={
                         <p className="text-xs text-default-400">
                           No permission to add columns
                         </p>
                       }
-                      permission="createBoards"
+                      permission="canManageColumns"
                     >
                       <Button
                         color="default"
@@ -262,7 +266,7 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
                       >
                         Add another column
                       </Button>
-                    </WithPermission>
+                    </WithBoardPermission>
                   </CardBody>
                 </Card>
               </motion.div>
@@ -272,13 +276,13 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
           <div className="flex h-full items-center justify-center">
             <div className="text-center space-y-4">
               <p className="text-default-500">No columns in this board yet</p>
-              <WithPermission
+              <WithBoardPermission
                 fallback={
                   <p className="text-xs text-default-400">
                     You don&apos;t have permission to create columns
                   </p>
                 }
-                permission="createBoards"
+                permission="canManageColumns"
               >
                 <Button
                   color="primary"
@@ -288,7 +292,7 @@ export const BoardPage: React.FC<BoardPageProps> = () => {
                 >
                   Add your first column
                 </Button>
-              </WithPermission>
+              </WithBoardPermission>
             </div>
           </div>
         )}

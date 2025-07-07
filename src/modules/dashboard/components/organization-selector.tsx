@@ -105,6 +105,7 @@ export const OrganizationSelector: React.FC<OrganizationSelectorProps> = ({
         aria-label="Select organization"
         classNames={{ trigger: "h-12" }}
         items={orgOptions}
+        variant="bordered"
         label="Organization"
         selectedKeys={[selectedOrg]}
         onSelectionChange={(keys) => {

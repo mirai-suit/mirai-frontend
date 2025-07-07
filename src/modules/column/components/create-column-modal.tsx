@@ -17,7 +17,7 @@ import { createColumnSchema, CreateColumnForm } from "../validations";
 import { useCreateColumn } from "../api";
 import { COLUMN_COLORS } from "../types";
 
-import { WithPermission } from "@/components/role-based-access";
+import { WithBoardPermission } from "@/components/board-permission-components";
 
 interface CreateColumnModalProps {
   isOpen: boolean;
@@ -68,17 +68,16 @@ export const CreateColumnModal: React.FC<CreateColumnModalProps> = ({
   return (
     <Modal isOpen={isOpen} placement="center" onClose={handleClose}>
       <ModalContent>
-        <WithPermission
+        <WithBoardPermission
           fallback={
             <div className="p-6 text-center">
               <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
               <p className="text-sm text-default-500">
-                You don&apos;t have permission to create columns in this
-                organization.
+                You don&apos;t have permission to create columns in this board.
               </p>
             </div>
           }
-          permission="createBoards"
+          permission="canManageColumns"
         >
           <form onSubmit={handleSubmit(onSubmit)}>
             <ModalHeader className="flex flex-col gap-1">
@@ -110,7 +109,7 @@ export const CreateColumnModal: React.FC<CreateColumnModalProps> = ({
                     placeholder="Select a color"
                     renderValue={() => {
                       const selectedColor = COLUMN_COLORS.find(
-                        (color) => color.value === field.value,
+                        (color) => color.value === field.value
                       );
 
                       return selectedColor ? (
@@ -160,7 +159,7 @@ export const CreateColumnModal: React.FC<CreateColumnModalProps> = ({
               </Button>
             </ModalFooter>
           </form>
-        </WithPermission>
+        </WithBoardPermission>
       </ModalContent>
     </Modal>
   );

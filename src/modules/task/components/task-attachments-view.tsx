@@ -100,12 +100,14 @@ const VoicePlayer: React.FC<VoicePlayerProps> = ({ attachment }) => {
 
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium">{attachment.filename}</span>
-              <span className="text-xs text-default-500">
+              <span className="text-sm font-medium text-foreground">
+                {attachment.filename}
+              </span>
+              <span className="text-xs text-foreground-500">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
             </div>
-            <div className="w-full bg-default-200 rounded-full h-2">
+            <div className="w-full bg-content2 rounded-full h-2">
               <div
                 className="bg-primary h-2 rounded-full transition-all duration-200"
                 style={{ width: `${progress}%` }}
@@ -151,10 +153,10 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ attachment }) => {
             </div>
           </div>
           <div className="mt-2">
-            <p className="text-xs font-medium truncate">
+            <p className="text-xs font-medium truncate text-foreground">
               {attachment.filename}
             </p>
-            <p className="text-xs text-default-500">
+            <p className="text-xs text-foreground-500">
               {(attachment.fileSize / 1024).toFixed(1)} KB
             </p>
           </div>
@@ -230,10 +232,10 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({ attachment }) => {
         <div className="flex items-center gap-3">
           <div className="text-2xl">{getFileIcon(attachment.mimeType)}</div>
           <div className="flex-1">
-            <p className="text-sm font-medium truncate">
+            <p className="text-sm font-medium truncate text-foreground">
               {attachment.filename}
             </p>
-            <p className="text-xs text-default-500">
+            <p className="text-xs text-foreground-500">
               {formatFileSize(attachment.fileSize)}
             </p>
           </div>
@@ -266,8 +268,8 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
     return (
       <Card>
         <CardBody className="text-center py-8">
-          <FileText className="mx-auto text-default-300" size={48} />
-          <p className="text-default-500 mt-2">No attachments found</p>
+          <FileText className="mx-auto text-content3-foreground" size={48} />
+          <p className="text-foreground-500 mt-2">No attachments found</p>
         </CardBody>
       </Card>
     );
@@ -336,7 +338,7 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
     if (filteredAttachments.length === 0) {
       return (
         <div className="text-center py-8">
-          <p className="text-default-500">No {type} attachments found</p>
+          <p className="text-foreground-500">No {type} attachments found</p>
         </div>
       );
     }
@@ -348,7 +350,7 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
             {filteredAttachments.map((attachment) => (
               <div key={attachment.id}>
                 <VoicePlayer attachment={attachment} />
-                <div className="mt-2 text-xs text-default-500 flex items-center gap-4">
+                <div className="mt-2 text-xs text-foreground-500 flex items-center gap-4">
                   <span className="flex items-center gap-1">
                     <User size={12} />
                     {attachment.uploadedBy.firstName}{" "}
@@ -369,7 +371,7 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
             {filteredAttachments.map((attachment) => (
               <div key={attachment.id}>
                 <ImagePreview attachment={attachment} />
-                <div className="mt-2 text-xs text-default-500">
+                <div className="mt-2 text-xs text-foreground-500">
                   <p className="flex items-center gap-1">
                     <User size={12} />
                     {attachment.uploadedBy.firstName}{" "}
@@ -390,7 +392,7 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
             {filteredAttachments.map((attachment) => (
               <div key={attachment.id}>
                 <DocumentPreview attachment={attachment} />
-                <div className="mt-2 text-xs text-default-500 flex items-center gap-4">
+                <div className="mt-2 text-xs text-foreground-500 flex items-center gap-4">
                   <span className="flex items-center gap-1">
                     <User size={12} />
                     {attachment.uploadedBy.firstName}{" "}
@@ -411,7 +413,7 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
             {/* Voice Notes Section */}
             {voiceNotes.length > 0 && (
               <div>
-                <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                <h4 className="text-sm font-medium mb-3 flex items-center gap-2 text-foreground">
                   <FileAudio size={16} />
                   Voice Notes ({voiceNotes.length})
                 </h4>
@@ -419,7 +421,7 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
                   {voiceNotes.map((attachment) => (
                     <div key={attachment.id}>
                       <VoicePlayer attachment={attachment} />
-                      <div className="mt-2 text-xs text-default-500 flex items-center gap-4">
+                      <div className="mt-2 text-xs text-foreground-500 flex items-center gap-4">
                         <span className="flex items-center gap-1">
                           <User size={12} />
                           {attachment.uploadedBy.firstName}{" "}
@@ -447,7 +449,7 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
                   {images.map((attachment) => (
                     <div key={attachment.id}>
                       <ImagePreview attachment={attachment} />
-                      <div className="mt-2 text-xs text-default-500">
+                      <div className="mt-2 text-xs text-foreground-500">
                         <p className="flex items-center gap-1">
                           <User size={12} />
                           {attachment.uploadedBy.firstName}{" "}
@@ -475,7 +477,7 @@ export const TaskAttachmentsView: React.FC<TaskAttachmentsViewProps> = ({
                   {documents.map((attachment) => (
                     <div key={attachment.id}>
                       <DocumentPreview attachment={attachment} />
-                      <div className="mt-2 text-xs text-default-500 flex items-center gap-4">
+                      <div className="mt-2 text-xs text-foreground-500 flex items-center gap-4">
                         <span className="flex items-center gap-1">
                           <User size={12} />
                           {attachment.uploadedBy.firstName}{" "}

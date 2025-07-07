@@ -60,11 +60,11 @@ export const updateBoardSchema = z.object({
 // Board access validation schema
 export const boardAccessSchema = z.object({
   userId: z.string().min(1, { message: "User ID is required" }),
-  accessRole: z
-    .enum(["MEMBER", "EDITOR", "ADMIN"], {
-      message: "Access role must be MEMBER, EDITOR, or ADMIN",
+  role: z
+    .enum(["VIEWER", "EDITOR", "ADMIN", "OWNER"], {
+      message: "Role must be VIEWER, EDITOR, ADMIN, or OWNER",
     })
-    .default("MEMBER"),
+    .default("VIEWER"),
 });
 
 // Predefined board colors for selection
