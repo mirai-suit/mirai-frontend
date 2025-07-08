@@ -24,7 +24,7 @@ import { TaskViewModal } from "../../task/components/task-view-modal";
 
 import { EditColumnModal } from "./edit-column-modal";
 
-import { WithBoardPermission } from "@/components/board-permission-components";
+import { WithPermission } from "@/components/role-based-access";
 import { useOrgStore } from "@/store/useOrgStore";
 
 interface ColumnCardProps {
@@ -44,10 +44,10 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
   const createTaskModal = useDisclosure();
   const taskViewModal = useDisclosure();
   const [selectedColumn, setSelectedColumn] = React.useState<Column | null>(
-    null
+    null,
   );
   const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(
-    null
+    null,
   );
 
   const canEditColumn = hasPermission("createBoards");
@@ -88,7 +88,7 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
 
   return (
     <>
-      <Card className="w-72 h-fit min-h-[200px]">
+      <Card className="w-72 h-fit min-h-[200px]" >
         <CardHeader className="flex items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <div
@@ -180,13 +180,13 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
           </ScrollShadow>
 
           {/* Add task button */}
-          <WithBoardPermission
+          <WithPermission
             fallback={
               <p className="text-xs text-center text-default-400 py-2">
                 No permission to add tasks
               </p>
             }
-            permission="canCreateTasks"
+            permission="createBoards"
           >
             <Button
               className="w-full"
@@ -197,7 +197,7 @@ export const ColumnCard: React.FC<ColumnCardProps> = ({
             >
               Add a task
             </Button>
-          </WithBoardPermission>
+          </WithPermission>
         </CardBody>
       </Card>
 

@@ -18,7 +18,8 @@ import { updateColumnSchema, UpdateColumnForm } from "../validations";
 import { useUpdateColumn, useDeleteColumn } from "../api";
 import { COLUMN_COLORS, Column } from "../types";
 
-import { WithBoardPermission } from "@/components/board-permission-components";
+import { WithPermission } from "@/components/role-based-access";
+import { useOrgStore } from "@/store/useOrgStore";
 
 interface EditColumnModalProps {
   isOpen: boolean;
@@ -31,8 +32,11 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
   onClose,
   column,
 }) => {
+  const { hasPermission } = useOrgStore();
   const updateColumnMutation = useUpdateColumn();
   const deleteColumnMutation = useDeleteColumn();
+
+  const canEditColumn = hasPermission("createBoards");
 
   const {
     control,
@@ -173,13 +177,13 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
                 Deleting this column will permanently remove it and all its
                 tasks. This action cannot be undone.
               </p>
-              <WithBoardPermission
+              <WithPermission
                 fallback={
                   <Button isDisabled color="danger" size="sm" variant="flat">
                     Delete Column (No permission)
                   </Button>
                 }
-                permission="canManageColumns"
+                permission="deleteBoards"
               >
                 <Button
                   color="danger"
@@ -190,7 +194,7 @@ export const EditColumnModal: React.FC<EditColumnModalProps> = ({
                 >
                   Delete Column
                 </Button>
-              </WithBoardPermission>
+              </WithPermission>
             </div>
           </ModalBody>
           <ModalFooter>

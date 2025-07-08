@@ -1,5 +1,4 @@
 // Board Types - matching backend DTOs for type safety
-import { BoardRole } from "@/types/board";
 
 // Column Response DTO
 export interface Column {
@@ -42,7 +41,7 @@ export interface BoardAccess {
   id: string;
   userId: string;
   boardId: string;
-  accessRole: BoardRole; // Updated to use BoardRole enum
+  accessRole: string;
   user?: {
     id: string;
     firstName: string;

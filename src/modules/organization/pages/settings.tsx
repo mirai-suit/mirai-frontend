@@ -1,10 +1,17 @@
 import React from "react";
 import { Card, CardBody, CardHeader, Tabs, Tab } from "@heroui/react";
 import { useParams } from "react-router-dom";
-import { Gear, Users, Shield, Notification } from "@phosphor-icons/react";
+import {
+  Gear,
+  Users,
+  Shield,
+  Notification,
+  UsersThree,
+} from "@phosphor-icons/react";
 
 import { MembersManagement } from "../components/members-management";
 import { BoardAccessManagement } from "../components/board-access-management";
+import { TeamsTab } from "../components/teams/TeamsTab";
 
 import { WithPermission } from "@/components/role-based-access";
 
@@ -56,6 +63,15 @@ export const OrganizationSettingsPage: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Users size={18} />
                   <span>Members</span>
+                </div>
+              }
+            />
+            <Tab
+              key="teams"
+              title={
+                <div className="flex items-center gap-2">
+                  <UsersThree size={18} />
+                  <span>Teams</span>
                 </div>
               }
             />
@@ -115,6 +131,22 @@ export const OrganizationSettingsPage: React.FC = () => {
               permission="inviteUsers"
             >
               <MembersManagement organizationId={orgId} />
+            </WithPermission>
+          )}
+
+          {selectedTab === "teams" && (
+            <WithPermission
+              fallback={
+                <div className="text-center py-8">
+                  <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
+                  <p className="text-default-500">
+                    You don&apos;t have permission to manage teams.
+                  </p>
+                </div>
+              }
+              permission="createBoards"
+            >
+              <TeamsTab />
             </WithPermission>
           )}
 

@@ -16,7 +16,7 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 
-import { useBoardPermissionStore } from "@/store/useBoardPermissionStore";
+import { useOrgStore } from "@/store/useOrgStore";
 
 interface BoardActionsProps {
   board: Board;
@@ -29,17 +29,16 @@ export const BoardActions: React.FC<BoardActionsProps> = ({
   isLoading,
   onAction,
 }) => {
-  const { canEditBoard, canDeleteBoard, hasBoardPermission } =
-    useBoardPermissionStore();
+  const { hasPermission } = useOrgStore();
 
   // Check permissions for different actions
-  const canEdit = canEditBoard();
-  const canArchive = hasBoardPermission("canArchiveBoard");
-  const canDelete = canDeleteBoard();
+  const canEditBoards = hasPermission("createBoards"); // Edit requires create permission
+  const canArchiveBoards = hasPermission("archiveBoards");
+  const canDeleteBoards = hasPermission("deleteBoards");
 
   // Build menu items array based on permissions
   const menuItems = [
-    ...(canEdit
+    ...(canEditBoards
       ? [
           <DropdownItem key="edit" startContent={<PencilSimple size={14} />}>
             Edit Board
@@ -49,7 +48,7 @@ export const BoardActions: React.FC<BoardActionsProps> = ({
     <DropdownItem key="share" startContent={<Share size={14} />}>
       Share Board
     </DropdownItem>,
-    ...(canArchive
+    ...(canArchiveBoards
       ? [
           <DropdownItem
             key={board.isArchived ? "unarchive" : "archive"}
@@ -59,7 +58,7 @@ export const BoardActions: React.FC<BoardActionsProps> = ({
           </DropdownItem>,
         ]
       : []),
-    ...(canDelete
+    ...(canDeleteBoards
       ? [
           <DropdownItem
             key="delete"

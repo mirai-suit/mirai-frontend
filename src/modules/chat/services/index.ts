@@ -23,7 +23,7 @@ export const chatService = {
     messageData: SendMessageInput
   ): Promise<SendMessageResponse> {
     const response = await apiClient.post(
-      `/chats/${boardId}/messages`,
+      `/chat/${boardId}/messages`,
       messageData
     );
 
@@ -40,7 +40,7 @@ export const chatService = {
     const skip = (page - 1) * limit;
     const take = limit;
 
-    const response = await apiClient.get(`/chats/${boardId}/messages`, {
+    const response = await apiClient.get(`/chat/${boardId}/messages`, {
       params: { skip, take },
     });
 
@@ -52,7 +52,7 @@ export const chatService = {
     boardId: string,
     searchParams: SearchMessagesInput
   ): Promise<SearchMessagesResponse> {
-    const response = await apiClient.get(`/chats/${boardId}/messages/search`, {
+    const response = await apiClient.get(`/chat/${boardId}/messages/search`, {
       params: searchParams,
     });
 
@@ -63,7 +63,7 @@ export const chatService = {
   async getBoardUsersForMentions(
     boardId: string
   ): Promise<GetBoardUsersResponse> {
-    const response = await apiClient.get(`/chats/${boardId}/users/mentions`);
+    const response = await apiClient.get(`/chat/${boardId}/users/mentions`);
 
     return response.data;
   },
@@ -74,7 +74,7 @@ export const chatService = {
     messageData: EditMessageInput
   ): Promise<EditMessageResponse> {
     const response = await apiClient.put(
-      `/chats/messages/${messageId}`,
+      `/chat/messages/${messageId}`,
       messageData
     );
 
@@ -83,14 +83,14 @@ export const chatService = {
 
   // Delete a message
   async deleteMessage(messageId: string): Promise<DeleteMessageResponse> {
-    const response = await apiClient.delete(`/chats/messages/${messageId}`);
+    const response = await apiClient.delete(`/chat/messages/${messageId}`);
 
     return response.data;
   },
 
   // Mark messages as read
   async markMessagesAsRead(boardId: string): Promise<MarkAsReadResponse> {
-    const response = await apiClient.post(`/chats/${boardId}/messages/read`);
+    const response = await apiClient.post(`/chat/${boardId}/messages/read`);
 
     return response.data;
   },
