@@ -99,18 +99,11 @@ export const BoardAccessManagement: React.FC<BoardAccessManagementProps> = ({
     return <Spinner label="Loading board access..." />;
   }
 
-  // Collect all unique users who have access to any board, excluding the owner
-  const userMap: Record<string, any> = {};
+  // Get all organization members excluding the current user (admin)
+  const organizationMembers = membersData?.members || [];
 
-  boardsData?.forEach((board: any) => {
-    accessLists?.[board.id]?.forEach((access: any) => {
-      if (!userMap[access.userId]) {
-        userMap[access.userId] = access.user;
-      }
-    });
-  });
-  let users = Object.values(userMap);
-
+  // Filter out the current user/admin from the list
+  let users = organizationMembers.map((member) => member.user);
   if (ownerId) {
     users = users.filter((user: any) => user.id !== ownerId);
   }
@@ -122,88 +115,94 @@ export const BoardAccessManagement: React.FC<BoardAccessManagementProps> = ({
           <h3 className="text-lg font-semibold">Board Access Management</h3>
         </div>
         <Accordion>
-          {users.map((user: any) => (
-            <AccordionItem
-              key={user.id}
-              title={
-                <div className="flex items-center gap-2">
-                  <span>
-                    {user.firstName} {user.lastName}
-                  </span>
-                  <span className="text-default-400 text-xs">
-                    ({user.email})
-                  </span>
-                </div>
-              }
-            >
-              <Table aria-label="User Board Access">
-                <TableHeader>
-                  <TableColumn>Board</TableColumn>
-                  <TableColumn>Status</TableColumn>
-                  <TableColumn>Access</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {boardsData?.map((board: any) => {
-                    const access = accessLists?.[board.id]?.find(
-                      (a: any) => a.userId === user.id
-                    );
+          {users.length > 0 ? (
+            users.map((user: any) => (
+              <AccordionItem
+                key={user.id}
+                title={
+                  <div className="flex items-center gap-2">
+                    <span>
+                      {user.firstName} {user.lastName}
+                    </span>
+                    <span className="text-default-400 text-xs">
+                      ({user.email})
+                    </span>
+                  </div>
+                }
+              >
+                <Table aria-label="User Board Access">
+                  <TableHeader>
+                    <TableColumn>Board</TableColumn>
+                    <TableColumn>Status</TableColumn>
+                    <TableColumn>Access</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    {boardsData?.map((board: any) => {
+                      const access = accessLists?.[board.id]?.find(
+                        (a: any) => a.userId === user.id
+                      );
 
-                    return (
-                      <TableRow key={board.id}>
-                        <TableCell>{board.title}</TableCell>
-                        <TableCell>
-                          <Chip
-                            color={access ? "success" : "default"}
-                            size="sm"
-                            startContent={access ? <Checks /> : <Lock />}
-                            variant="flat"
-                          >
-                            {access ? "Has Access" : "No Access"}
-                          </Chip>
-                        </TableCell>
-                        <TableCell>
-                          {access ? (
-                            <Button
-                              color="danger"
+                      return (
+                        <TableRow key={board.id}>
+                          <TableCell>{board.title}</TableCell>
+                          <TableCell>
+                            <Chip
+                              color={access ? "success" : "default"}
                               size="sm"
+                              startContent={access ? <Checks /> : <Lock />}
                               variant="flat"
-                              startContent={<FileLock />}
-                              onClick={() =>
-                                revokeAccess.mutate({
-                                  organizationId,
-                                  boardId: board.id,
-                                  userId: user.id,
-                                })
-                              }
                             >
-                              Revoke Access
-                            </Button>
-                          ) : (
-                            <Button
-                              color="primary"
-                              size="sm"
-                              variant="flat"
-                              startContent={<Key />}
-                              onClick={() =>
-                                grantBoardAccess.mutate({
-                                  organizationId,
-                                  boardId: board.id,
-                                  userId: user.id,
-                                  accessRole: "MEMBER",
-                                })
-                              }
-                            >
-                              Grant Access
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </AccordionItem>
-          ))}
+                              {access ? "Has Access" : "No Access"}
+                            </Chip>
+                          </TableCell>
+                          <TableCell>
+                            {access ? (
+                              <Button
+                                color="danger"
+                                size="sm"
+                                variant="flat"
+                                startContent={<FileLock />}
+                                onClick={() =>
+                                  revokeAccess.mutate({
+                                    organizationId,
+                                    boardId: board.id,
+                                    userId: user.id,
+                                  })
+                                }
+                              >
+                                Revoke Access
+                              </Button>
+                            ) : (
+                              <Button
+                                color="primary"
+                                size="sm"
+                                variant="flat"
+                                startContent={<Key />}
+                                onClick={() =>
+                                  grantBoardAccess.mutate({
+                                    organizationId,
+                                    boardId: board.id,
+                                    userId: user.id,
+                                    accessRole: "MEMBER",
+                                  })
+                                }
+                              >
+                                Grant Access
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </AccordionItem>
+            ))
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-default-500">No organization members found.</p>
+            </div>
+          )}
         </Accordion>
       </CardBody>
     </Card>

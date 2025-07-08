@@ -21,7 +21,7 @@ import { useTeams } from "../../api/teams";
 export const TeamsTab: React.FC = () => {
   const { currentOrg } = useOrgStore();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
 
   const createModal = useDisclosure();
   const editModal = useDisclosure();
@@ -44,12 +44,12 @@ export const TeamsTab: React.FC = () => {
   );
 
   const handleEditTeam = (team: Team) => {
-    setSelectedTeam(team);
+    setSelectedTeamId(team.id);
     editModal.onOpen();
   };
 
   const handleCloseEditModal = () => {
-    setSelectedTeam(null);
+    setSelectedTeamId(null);
     editModal.onClose();
   };
 
@@ -170,7 +170,7 @@ export const TeamsTab: React.FC = () => {
       <EditTeamModal
         isOpen={editModal.isOpen}
         onClose={handleCloseEditModal}
-        team={selectedTeam}
+        teamId={selectedTeamId}
       />
     </div>
   );

@@ -71,16 +71,6 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
   const { data: boardUsers } = useBoardUsers(boardId);
   const sendMessageMutation = useSendMessage();
 
-  // Debug logging for messages data
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log("📊 Messages data updated:", messagesData);
-    // eslint-disable-next-line no-console
-    console.log("📊 Messages loading:", isLoadingMessages);
-    // eslint-disable-next-line no-console
-    console.log("📊 Messages error:", messagesError);
-  }, [messagesData, isLoadingMessages, messagesError]);
-
   // Socket event handlers
   useEffect(() => {
     if (!isOpen || !boardId) return;
@@ -405,7 +395,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
       onClose={onClose}
       backdrop="opaque"
     >
-      <DrawerContent className="bg-transparent backdrop-blur-lg">
+      <DrawerContent className="bg-transparent backdrop-blur">
         <DrawerHeader className="flex flex-col gap-2 px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -414,7 +404,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
                 {messagesData?.messages.length || 0} messages
               </Chip>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 mr-5">
               <Button
                 isIconOnly
                 className="text-default-500"
@@ -424,7 +414,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
               >
                 <MagnifyingGlass size={16} />
               </Button>
-              <Button
+              {/* <Button
                 isIconOnly
                 className="text-default-500"
                 size="sm"
@@ -432,7 +422,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
                 onPress={onClose}
               >
                 <X size={16} />
-              </Button>
+              </Button> */}
             </div>
           </div>
 
