@@ -41,8 +41,7 @@ export interface MessageThread {
 // Board User for Mentions
 export interface BoardUser {
   id: string;
-  firstName: string;
-  lastName: string;
+name:string,
   email: string;
   avatar?: string;
 }

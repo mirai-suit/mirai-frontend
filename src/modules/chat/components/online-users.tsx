@@ -9,7 +9,7 @@ interface OnlineUsersProps {
 
 export const OnlineUsers: React.FC<OnlineUsersProps> = ({ boardUsers }) => {
   if (!boardUsers.length) return null;
-
+  console.log("BOARD USERS IN CHAT", boardUsers);
   return (
     <div className="flex flex-col gap-2">
       <span className="text-xs font-medium text-default-500 uppercase tracking-wide">
@@ -25,7 +25,7 @@ export const OnlineUsers: React.FC<OnlineUsersProps> = ({ boardUsers }) => {
             key={user.id}
             avatarProps={{
               src: user.avatar,
-              name: `${user.firstName} ${user.lastName}`,
+              name: `${user.name}`,
               size: "sm",
             }}
             className="flex-shrink-0 min-w-0"
@@ -34,7 +34,7 @@ export const OnlineUsers: React.FC<OnlineUsersProps> = ({ boardUsers }) => {
               description: "text-xs text-default-500",
             }}
             description={user.email}
-            name={`${user.firstName} ${user.lastName}`}
+            name={`${user.name}`}
           />
         ))}
       </ScrollShadow>
