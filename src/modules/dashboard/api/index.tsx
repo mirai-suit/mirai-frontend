@@ -4,6 +4,7 @@ import type { CreateOrganizationInput } from "../validations";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { organizationService } from "../services";
+import apiClient from "@/libs/axios/interceptor";
 
 // Query Keys - Centralized for consistency
 export const ORGANIZATION_QUERY_KEYS = {
@@ -41,6 +42,62 @@ export const useCreateOrganization = () => {
     onError: () => {
       // Error is handled by the component using this mutation
     },
+  });
+};
+
+
+// 1. Get team performance overview (for dashboard)
+export const useTeamPerformanceOverview = (
+  teamId: string,
+  period: "WEEKLY" | "MONTHLY" | "QUARTERLY" = "MONTHLY"
+) => {
+  return useQuery({
+    queryKey: ["teamPerformanceOverview", teamId, period],
+    queryFn: async () => {
+      const { data } = await apiClient.get(
+        `/team/${teamId}/overview`,
+        { params: { period } }
+      );
+      return data.overview;
+    },
+    enabled: !!teamId,
+  });
+};
+
+// 2. Get user performance metrics for a team
+export const useUserPerformanceMetrics = (
+  userId: string,
+  teamId: string,
+  period: "WEEKLY" | "MONTHLY" | "QUARTERLY" = "MONTHLY"
+) => {
+  return useQuery({
+    queryKey: ["userPerformanceMetrics", userId, teamId, period],
+    queryFn: async () => {
+      const { data } = await apiClient.get(
+        `/user/${userId}/team/${teamId}/metrics`,
+        { params: { period } }
+      );
+      return data.metrics;
+    },
+    enabled: !!userId && !!teamId,
+  });
+};
+
+// 3. Get full performance report for a team (dashboard analytics)
+export const useTeamPerformanceReport = (
+  teamId: string,
+  period: "WEEKLY" | "MONTHLY" | "QUARTERLY" = "MONTHLY"
+) => {
+  return useQuery({
+    queryKey: ["teamPerformanceReport", teamId, period],
+    queryFn: async () => {
+      const { data } = await apiClient.get(
+        `/team/${teamId}/report`,
+        { params: { period } }
+      );
+      return data.report;
+    },
+    enabled: !!teamId,
   });
 };
 

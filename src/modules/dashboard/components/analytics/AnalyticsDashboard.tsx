@@ -15,6 +15,7 @@ import {
   TaskDistributionChart,
   TeamPerformanceChart,
 } from "./AnalyticsCharts";
+import { useTeamPerformanceOverview, useTeamPerformanceReport, useUserPerformanceMetrics } from "../../api";
 
 interface RecentActivityItemProps {
   activity: {
@@ -110,8 +111,11 @@ export const AnalyticsDashboard: React.FC = () => {
     error,
     refetch,
   } = useOrganizationAnalytics(currentOrg?.id || "");
+  const { data: overview, isLoading:isLoadingAnalytics } = useTeamPerformanceOverview(teamId, "WEEKLY");
+  const { data: metrics } = useUserPerformanceMetrics(userId, teamId, "MONTHLY");
+  const { data: report } = useTeamPerformanceReport(teamId, "QUARTERLY");
 
-  if (isLoading) {
+  if (isLoading || isLoadingAnalytics) {
     return <AnalyticsLoadingState />;
   }
 
@@ -209,7 +213,7 @@ export const AnalyticsDashboard: React.FC = () => {
       </motion.div>
 
       {/* Overview Stats */}
-      <OverviewStats data={analytics.overview} />
+      <OverviewStats data={overview} />
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
