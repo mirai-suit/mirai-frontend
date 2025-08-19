@@ -61,6 +61,7 @@ export const useTeamPerformanceOverview = (
       return data.overview;
     },
     enabled: !!teamId,
+    staleTime: 0, // Always fetch fresh data for real-time analytics
   });
 };
 
@@ -80,6 +81,7 @@ export const useUserPerformanceMetrics = (
       return data.metrics;
     },
     enabled: !!userId && !!teamId,
+    staleTime: 0, // Always fetch fresh data for real-time analytics
   });
 };
 
@@ -98,6 +100,7 @@ export const useTeamPerformanceReport = (
       return data.report;
     },
     enabled: !!teamId,
+    staleTime: 0, // Always fetch fresh data for real-time analytics
   });
 };
 

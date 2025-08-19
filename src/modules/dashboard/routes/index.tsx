@@ -7,6 +7,7 @@ import { OrganizationProtectedRoute } from "@/components/organization-protected-
 import { HeroUIProvider } from "@/providers/heroui-provider";
 import { BoardPage } from "@/modules/board/pages/board";
 import { OrganizationSettingsPage } from "@/modules/organization/pages/settings";
+import PerformancePage from "@/modules/performance/pages/PerformancePage";
 
 export const dashboardRoutes = {
   path: "u",
@@ -41,6 +42,16 @@ export const dashboardRoutes = {
             // Board routes with organization context
             <OrganizationProtectedRoute>
               <BoardPage />
+            </OrganizationProtectedRoute>
+          ),
+        },
+
+        // Performance Analytics (All users can see their own performance)
+        {
+          path: "o/:orgId/performance",
+          element: (
+            <OrganizationProtectedRoute>
+              <PerformancePage />
             </OrganizationProtectedRoute>
           ),
         },

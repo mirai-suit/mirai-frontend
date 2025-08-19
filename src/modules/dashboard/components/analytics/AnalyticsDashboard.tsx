@@ -15,7 +15,8 @@ import {
   TaskDistributionChart,
   TeamPerformanceChart,
 } from "./AnalyticsCharts";
-import { useTeamPerformanceOverview, useTeamPerformanceReport, useUserPerformanceMetrics } from "../../api";
+// TODO: Re-enable these imports when team/user context is properly implemented
+// import { useTeamPerformanceOverview, useTeamPerformanceReport, useUserPerformanceMetrics } from "../../api";
 
 interface RecentActivityItemProps {
   activity: {
@@ -111,11 +112,14 @@ export const AnalyticsDashboard: React.FC = () => {
     error,
     refetch,
   } = useOrganizationAnalytics(currentOrg?.id || "");
-  const { data: overview, isLoading:isLoadingAnalytics } = useTeamPerformanceOverview(teamId, "WEEKLY");
-  const { data: metrics } = useUserPerformanceMetrics(userId, teamId, "MONTHLY");
-  const { data: report } = useTeamPerformanceReport(teamId, "QUARTERLY");
 
-  if (isLoading || isLoadingAnalytics) {
+  // TODO: These need to be properly implemented when team/user context is available
+  // For now, we'll comment them out to prevent crashes
+  // const { data: overview, isLoading:isLoadingAnalytics } = useTeamPerformanceOverview(teamId, "WEEKLY");
+  // const { data: metrics } = useUserPerformanceMetrics(userId, teamId, "MONTHLY");
+  // const { data: report } = useTeamPerformanceReport(teamId, "QUARTERLY");
+
+  if (isLoading) {
     return <AnalyticsLoadingState />;
   }
 
@@ -213,7 +217,7 @@ export const AnalyticsDashboard: React.FC = () => {
       </motion.div>
 
       {/* Overview Stats */}
-      <OverviewStats data={overview} />
+      <OverviewStats data={analytics?.overview} />
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

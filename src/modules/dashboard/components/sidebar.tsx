@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Tooltip } from "@heroui/react";
-import { Gear } from "@phosphor-icons/react";
+import { Gear, ChartLineUp } from "@phosphor-icons/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -42,6 +42,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleSettingsClick = () => {
     if (selectedOrg && userId) {
       navigate(`/u/${userId}/o/${selectedOrg}/settings`);
+    }
+  };
+
+  const handlePerformanceClick = () => {
+    if (selectedOrg && userId) {
+      navigate(`/u/${userId}/o/${selectedOrg}/performance`);
     }
   };
 
@@ -108,6 +114,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </Tooltip>
           </div>
         )}
+
+        {/* Performance Tab */}
+        <div className="px-3 pb-2">
+          {isCollapsed ? (
+            <Tooltip content="Performance" placement="right">
+              <Button
+                isIconOnly
+                aria-label="Performance"
+                className="w-10 h-10 mx-auto"
+                variant="light"
+                onPress={handlePerformanceClick}
+              >
+                <ChartLineUp size={18} />
+              </Button>
+            </Tooltip>
+          ) : (
+            <Button
+              className="w-full justify-start"
+              startContent={<ChartLineUp size={18} />}
+              variant="light"
+              onPress={handlePerformanceClick}
+            >
+              Performance
+            </Button>
+          )}
+        </div>
 
         {/* Boards Section */}
         <div className="flex-1 overflow-y-auto">

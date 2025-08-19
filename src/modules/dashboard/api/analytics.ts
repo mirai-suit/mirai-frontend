@@ -196,7 +196,7 @@ export const useOrganizationAnalytics = (organizationId: string) => {
     queryKey: ["organization-analytics", organizationId],
     queryFn: () => getOrganizationAnalytics(organizationId),
     enabled: !!organizationId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Always fetch fresh data for real-time analytics
     refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
   });
 };
@@ -209,6 +209,6 @@ export const useTeamPerformance = (
     queryKey: ["team-performance", teamId, period],
     queryFn: () => getTeamPerformanceData(teamId, period),
     enabled: !!teamId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // Always fetch fresh data for real-time analytics
   });
 };
