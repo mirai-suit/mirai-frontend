@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { organizationService } from "../services";
 import apiClient from "@/libs/axios/interceptor";
+import { deleteNotification, markNotificationAsRead } from "./analytics";
 
 // Query Keys - Centralized for consistency
 export const ORGANIZATION_QUERY_KEYS = {
@@ -104,5 +105,25 @@ export const useTeamPerformanceReport = (
   });
 };
 
+
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: markNotificationAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+};
+
+export const useDeleteNotification = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteNotification,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+};
 // Export analytics API
 export * from "./analytics";

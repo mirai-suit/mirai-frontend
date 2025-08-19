@@ -1,5 +1,6 @@
 import apiClient from "@/libs/axios/interceptor";
 import { useQuery } from "@tanstack/react-query";
+import { Notification } from "../types/sidebar.type";
 
 // Types for analytics data
 export interface TeamOverviewData {
@@ -70,6 +71,31 @@ export interface OrganizationAnalytics {
     color: string;
   }>;
 }
+
+
+export interface NotificationListResponse {
+  notifications: Notification[];
+}
+
+export interface NotificationResponse {
+  notification: Notification;
+}
+
+// API functions
+export const getNotifications = async (): Promise<Notification[]> => {
+  const { data } = await apiClient.get<NotificationListResponse>("/notifications/user/");
+  return data.notifications;
+};
+
+export const markNotificationAsRead = async (notificationId: string): Promise<Notification> => {
+  const { data } = await apiClient.patch<NotificationResponse>(`/notifications/${notificationId}/read`);
+  return data.notification;
+};
+
+export const deleteNotification = async (notificationId: string): Promise<void> => {
+  await apiClient.delete(`/notifications/${notificationId}`);
+};
+
 
 // API functions
 export const getOrganizationAnalytics = async (
@@ -210,5 +236,16 @@ export const useTeamPerformance = (
     queryFn: () => getTeamPerformanceData(teamId, period),
     enabled: !!teamId,
     staleTime: 0, // Always fetch fresh data for real-time analytics
+  });
+};
+
+
+// React Query hooks
+export const useNotifications = () => {
+  return useQuery({
+    queryKey: ["notifications"],
+    queryFn: getNotifications,
+    staleTime: 2 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
   });
 };

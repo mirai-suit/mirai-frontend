@@ -39,7 +39,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
 }) => {
   // Calculate the number of unread notifications for the badge
   const unreadCount = notifications.filter(
-    (notification) => !notification.isRead,
+    (notification) => !notification.read,
   ).length;
 
   return (
@@ -99,7 +99,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
               key={notification.id}
               animate={{ opacity: 1 }}
               className={`p-4 border-b border-divider hover:bg-default-50 cursor-pointer
-                        ${!notification.isRead ? "bg-default-50" : ""}`}
+                        ${!notification.read ? "bg-default-50" : ""}`}
               /* Mark notification as read when clicked */
               initial={{ opacity: 0.8 }}
               /* Dynamic styling: unread notifications have background highlight */
@@ -107,27 +107,17 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
             >
               <div className="flex gap-3">
                 {/* User avatar for the notification */}
-                <Avatar
-                  className="flex-shrink-0"
-                  name="User Avatar"
-                  size="sm"
-                  src={notification.avatar}
-                />
                 <div className="flex-1 min-w-0">
                   {/* Top row: notification content and read status indicator */}
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       {/* Notification title */}
                       <p className="text-small font-medium">
-                        {notification.title}
-                      </p>
-                      {/* Notification message/description */}
-                      <p className="text-xs text-default-500 mt-1">
-                        {notification.message}
+                        {notification.notification}
                       </p>
                     </div>
                     {/* Blue dot indicator for unread notifications */}
-                    {!notification.isRead && (
+                    {!notification.read && (
                       <Circle
                         className="text-primary mt-1 flex-shrink-0"
                         size={8}
@@ -140,10 +130,10 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                   <div className="flex items-center justify-between mt-2">
                     {/* When the notification was created/received */}
                     <span className="text-xs text-default-400">
-                      {notification.timestamp}
+                      {notification.createdAt}
                     </span>
 
-                    {/* Action buttons for notifications that require user response */}
+                    {/* Action buttons for notifications that require user response
                     {notification.actionable && (
                       <div className="flex gap-2">
                         <Button
@@ -162,7 +152,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                           Decline
                         </Button>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>

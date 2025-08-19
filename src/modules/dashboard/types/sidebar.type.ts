@@ -10,11 +10,10 @@ export interface Board {
 
 export interface Notification {
   id: string;
-  type: "invite" | "mention" | "file_update" | "follow" | "system";
-  title: string;
-  message: string;
-  timestamp: string;
-  isRead: boolean;
-  avatar?: string;
-  actionable?: boolean; // for invites with Accept/Decline buttons
+  notification: string;
+  read: boolean;
+  userId?: string;
+  teamId?: string;
+  boardId?: string;
+  createdAt: string;
 }

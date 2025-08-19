@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Badge,
   Button,
@@ -25,14 +25,16 @@ import {
 } from "@phosphor-icons/react";
 import Avatar from "boring-avatars";
 
-import { Notification } from "../types/sidebar.type";
-
 import { NotificationPanel } from "./notification-panel";
 
 import { ThemeTabs } from "@/components/theme-switch";
 import { useAuthStore } from "@/modules/auth/store";
 import { siteConfig } from "@/config/site";
 import { authService } from "@/modules/auth/services";
+import { useNotifications } from "../api";
+import { useQueryClient } from "@tanstack/react-query";
+import io from "socket.io-client";
+import { Notification } from "../types/sidebar.type";
 
 interface SidebarHeaderProps {
   isCollapsed: boolean;
@@ -47,56 +49,61 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
 }) => {
   const [isNotificationOpen, setIsNotificationOpen] = React.useState(false);
   const user = useAuthStore((state) => state.user);
-  const [notifications, setNotifications] = React.useState<Notification[]>([
-    {
-      id: "1",
-      type: "invite",
-      title: "Team Invitation",
-      message: "Tony Reichert requested to join your Acme organization.",
-      timestamp: "2 minutes ago",
-      isRead: false,
-      avatar: "https://img.heroui.chat/image/avatar?w=200&h=200&u=10",
-      actionable: true,
-    },
-    {
-      id: "2",
-      type: "file_update",
-      title: "File Modified",
-      message: "Ben Berman modified the Brand logo file.",
-      timestamp: "7 hours ago",
-      isRead: false,
-      avatar: "https://img.heroui.chat/image/avatar?w=200&h=200&u=11",
-    },
-    {
-      id: "3",
-      type: "mention",
-      title: "Post Interaction",
-      message: "Jane Doe liked your post.",
-      timestamp: "Yesterday",
-      isRead: true,
-      avatar: "https://img.heroui.chat/image/avatar?w=200&h=200&u=12",
-    },
-  ]);
-
+  const { data: notifications , isLoading } = useNotifications();
   const unreadCount = React.useMemo(() => {
-    return notifications.filter((notification) => !notification.isRead).length;
+    return notifications?.filter((notification) => !notification.read).length;
   }, [notifications]);
+  const queryClient = useQueryClient();
 
-  const handleMarkAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((notification) =>
-        notification.id === id
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
-  };
+  useEffect(() => {
+    if (!user?.id) return;
 
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, isRead: true }))
-    );
-  };
+    // Connect to socket
+    const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:8000");
+
+    socket.on("connect", () => {
+      console.log("Socket connected!", socket.id);      
+      // Join personal notification room
+      // Register listener BEFORE joining room
+      socket.on("notification:new", (notification : any) => {
+        queryClient.setQueryData(["notifications"], (old: any) => [notification, ...(old || [])]);
+        console.log("New notification received:", notification);
+      });
+
+      socket.emit("joinNotifications", user.id);
+    });
+    
+
+    console.log("jiasd", notifications);
+
+    // Cleanup on unmount
+    return () => {
+      socket.emit("leaveNotifications", user.id);
+      socket.disconnect();
+      console.log("Socket disconnected for user:", user.id);
+    };
+  }, [user?.id, queryClient]);
+
+  // const handleMarkAsRead = (id: string) => {
+  //   setNotifications((prev) =>
+  //     prev.map((notification) =>
+  //       notification.id === id
+  //         ? { ...notification, read: true }
+  //         : notification
+  //     )
+  //   );
+  // };
+
+  // const handleMarkAllAsRead = () => {
+  //   setNotifications((prev) =>
+  //     prev.map((notification) => ({ ...notification, read: true }))
+  //   );
+  // };
+
+  
+
+
+
 
   return (
     <div className="h-16 border-divider flex items-center justify-between px-3">
@@ -125,12 +132,13 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       </div>
 
       {/* User Section */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" >
         {/* Notification Bell */}
         <Popover
           isOpen={isNotificationOpen}
           placement="bottom-end"
-          onOpenChange={setIsNotificationOpen}
+          onOpenChange={(open) => setIsNotificationOpen(open)}
+          className="relative"
         >
           <PopoverTrigger>
             <div>
@@ -152,7 +160,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                   >
                     <Bell
                       size={18}
-                      weight={unreadCount > 0 ? "fill" : "regular"}
+                      // weight={unreadCount > 0 ? "fill" : "regular"}
                     />
                   </Button>
                 </Badge>
@@ -161,10 +169,10 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           </PopoverTrigger>
           <PopoverContent className="p-0 w-80">
             <NotificationPanel
-              notifications={notifications}
+              notifications={notifications || []}
               onClose={() => setIsNotificationOpen(false)}
-              onMarkAllAsRead={handleMarkAllAsRead}
-              onMarkAsRead={handleMarkAsRead}
+              onMarkAllAsRead={() => {}}
+              onMarkAsRead={() => {}}
             />
           </PopoverContent>
         </Popover>
