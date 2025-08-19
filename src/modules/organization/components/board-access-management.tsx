@@ -23,7 +23,6 @@ import {
   useGrantBoardAccess,
 } from "../api/board-access.api";
 import { boardAccessService } from "../services/boardAccess.service";
-import { useOrganizationMembers } from "../api/index";
 
 import apiClient from "@/libs/axios/interceptor";
 
@@ -65,13 +64,6 @@ export const BoardAccessManagement: React.FC<BoardAccessManagementProps> = ({
     enabled: !!organizationId,
   });
 
-  // Fetch organization members to get the owner
-  const { data: membersData } = useOrganizationMembers(organizationId);
-  const owner = membersData?.members?.find(
-    (m: any) => m.role === "ADMIN" && m.isOwner
-  );
-  const ownerId = owner?.user?.id;
-
   // Fetch access lists for all boards
   const { data: accessLists, isLoading: accessLoading } = useQuery({
     queryKey: ["orgBoardAccess", organizationId],
@@ -99,14 +91,20 @@ export const BoardAccessManagement: React.FC<BoardAccessManagementProps> = ({
     return <Spinner label="Loading board access..." />;
   }
 
-  // Get all organization members excluding the current user (admin)
-  const organizationMembers = membersData?.members || [];
-
-  // Filter out the current user/admin from the list
-  let users = organizationMembers.map((member) => member.user);
-  if (ownerId) {
-    users = users.filter((user: any) => user.id !== ownerId);
+  // Get all unique users who have access to any board (excluding current user - handled by backend)
+  const usersWithAccess = new Map();
+  
+  if (accessLists) {
+    Object.values(accessLists).forEach((boardAccessList: any[]) => {
+      boardAccessList.forEach((access: any) => {
+        if (access.user) {
+          usersWithAccess.set(access.user.id, access.user);
+        }
+      });
+    });
   }
+
+  const users = Array.from(usersWithAccess.values());
 
   return (
     <Card>
@@ -114,9 +112,9 @@ export const BoardAccessManagement: React.FC<BoardAccessManagementProps> = ({
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Board Access Management</h3>
         </div>
-        <Accordion>
-          {users.length > 0 ? (
-            users.map((user: any) => (
+        {users.length > 0 ? (
+          <Accordion>
+            {users.map((user: any) => (
               <AccordionItem
                 key={user.id}
                 title={
@@ -197,13 +195,15 @@ export const BoardAccessManagement: React.FC<BoardAccessManagementProps> = ({
                   </TableBody>
                 </Table>
               </AccordionItem>
-            ))
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-default-500">No organization members found.</p>
-            </div>
-          )}
-        </Accordion>
+            ))}
+          </Accordion>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-default-500">
+              No users with board access found.
+            </p>
+          </div>
+        )}
       </CardBody>
     </Card>
   );

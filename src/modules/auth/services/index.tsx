@@ -21,14 +21,10 @@ export const authService = {
   // Logout method
   async logout() {
     try {
-      const refreshToken = useAuthStore.getState().refreshToken;
-
-      if (refreshToken) {
-        // Revoke the refresh token on the server
-        // await apiClient.post("/auth/logout", { token: refreshToken });
-      }
+      // Call the logout API to revoke all tokens on the server
+      await apiClient.post("/auth/logout");
     } catch {
-      // Handle logout error silently
+      // Handle logout error silently - still clear local state
     } finally {
       // Clear auth state regardless of API response
       useAuthStore.getState().clearAuth();
@@ -37,7 +33,7 @@ export const authService = {
 
   // Refresh token method
   async refreshToken(token: string) {
-    const response = await apiClient.post("/auth/refresh-token", { token });
+    const response = await apiClient.post("/auth/refresh-token", { refreshToken: token });
 
     if (response.data && response.data.accessToken) {
       useAuthStore.getState().setAccessToken(response.data.accessToken);
