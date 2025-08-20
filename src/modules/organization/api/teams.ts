@@ -12,6 +12,8 @@ import apiClient from "@/libs/axios/interceptor";
 const TEAM_ENDPOINTS = {
   create: "/team",
   getByOrg: (orgId: string) => `/team/organization/${orgId}`,
+  getTaskAssignment: (orgId: string) => `/team/organization/${orgId}/task-assignment`,
+  getByBoardAccess: (boardId: string) => `/team/board/${boardId}/teams`,
   getById: (teamId: string) => `/team/${teamId}`,
   update: (teamId: string) => `/team/${teamId}`,
   delete: (teamId: string) => `/team/${teamId}`,
@@ -32,6 +34,8 @@ export const TEAM_QUERY_KEYS = {
   all: ["teams"] as const,
   lists: () => [...TEAM_QUERY_KEYS.all, "list"] as const,
   list: (orgId: string) => [...TEAM_QUERY_KEYS.lists(), orgId] as const,
+  taskAssignment: (orgId: string) => [...TEAM_QUERY_KEYS.all, "task-assignment", orgId] as const,
+  boardAccess: (boardId: string) => [...TEAM_QUERY_KEYS.all, "board-access", boardId] as const,
   details: () => [...TEAM_QUERY_KEYS.all, "detail"] as const,
   detail: (teamId: string) => [...TEAM_QUERY_KEYS.details(), teamId] as const,
   userTeams: (userId: string) =>
@@ -51,6 +55,44 @@ export const useTeams = (organizationId: string) => {
       return response.data.data; // Backend returns { success: true, data: result }
     },
     enabled: !!organizationId,
+  });
+};
+
+// Get teams for task assignment (simplified for dropdowns)
+export const useTeamsForTaskAssignment = (organizationId: string) => {
+  return useQuery({
+    queryKey: TEAM_QUERY_KEYS.taskAssignment(organizationId),
+    queryFn: async (): Promise<Array<{
+      id: string;
+      name: string;
+      color: string;
+      memberCount: number;
+    }>> => {
+      const response = await apiClient.get(
+        TEAM_ENDPOINTS.getTaskAssignment(organizationId)
+      );
+      return response.data.data.teams; // Backend returns { success: true, data: { teams } }
+    },
+    enabled: !!organizationId,
+  });
+};
+
+// Get teams with access to a specific board (for task assignment)
+export const useTeamsByBoardAccess = (boardId: string) => {
+  return useQuery({
+    queryKey: TEAM_QUERY_KEYS.boardAccess(boardId),
+    queryFn: async (): Promise<Array<{
+      id: string;
+      name: string;
+      color: string;
+      memberCount: number;
+    }>> => {
+      const response = await apiClient.get(
+        TEAM_ENDPOINTS.getByBoardAccess(boardId)
+      );
+      return response.data.data.teams; // Backend returns { success: true, data: { teams } }
+    },
+    enabled: !!boardId,
   });
 };
 

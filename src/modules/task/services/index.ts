@@ -60,9 +60,9 @@ export const taskService = {
     if (data.startDate) formData.append("startDate", data.startDate);
     if (data.dueDate) formData.append("dueDate", data.dueDate);
 
-    // Add assignee IDs (match the backend expectation)
-    if (data.assigneeIds && data.assigneeIds.length > 0) {
-      data.assigneeIds.forEach((id) => formData.append("assigneeIds", id));
+    // Add team ID for assignment
+    if (data.teamId) {
+      formData.append("teamId", data.teamId);
     }
 
     // Add files

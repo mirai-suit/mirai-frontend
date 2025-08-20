@@ -40,7 +40,7 @@ export const baseTaskSchema = z.object({
   isRecurring: z.boolean().default(false),
 });
 
-// Create Task Schema for forms
+// Create Task Schema for forms - now requires team assignment
 export const createTaskFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
   description: z.string().max(1000, "Description too long").optional(),
@@ -52,11 +52,11 @@ export const createTaskFormSchema = z.object({
   isRecurring: z.boolean().optional(),
   boardId: z.string().uuid("Invalid board ID"),
   columnId: z.string().uuid("Invalid column ID"),
-  teamId: z.string().uuid("Invalid team ID").optional(),
-  assigneeIds: z.array(z.string().uuid("Invalid user ID")).optional(),
+  teamId: z.string().uuid("Please select a team").min(1, "Team assignment is required"),
+  // Remove individual assigneeIds - now team-based only
 });
 
-// Create Task Schema
+// Create Task Schema - team-based assignment required
 export const createTaskSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
   description: z.string().max(1000, "Description too long").optional(),
@@ -69,11 +69,11 @@ export const createTaskSchema = z.object({
   isRecurring: z.boolean().optional(),
   boardId: z.string().uuid("Invalid board ID"),
   columnId: z.string().uuid("Invalid column ID"),
-  teamId: z.string().uuid("Invalid team ID").optional(),
-  assigneeIds: z.array(z.string().uuid("Invalid user ID")).optional(),
+  teamId: z.string().uuid("Team assignment is required"),
+  // Remove individual assigneeIds - backend handles team member assignment
 });
 
-// Update Task Form Schema (for forms with DateRangePicker)
+// Update Task Form Schema - team-based updates
 export const updateTaskFormSchema = z.object({
   title: z
     .string()
@@ -89,10 +89,10 @@ export const updateTaskFormSchema = z.object({
   isRecurring: z.boolean().optional(),
   columnId: z.string().uuid("Invalid column ID").optional(),
   teamId: z.string().uuid("Invalid team ID").optional(),
-  assigneeIds: z.array(z.string().uuid("Invalid user ID")).optional(),
+  // Remove individual assigneeIds - team assignment handles all members
 });
 
-// Update Task Schema (for API requests with separate date fields)
+// Update Task Schema - team-based updates
 export const updateTaskSchema = z.object({
   title: z
     .string()
@@ -109,7 +109,7 @@ export const updateTaskSchema = z.object({
   isRecurring: z.boolean().optional(),
   columnId: z.string().uuid("Invalid column ID").optional(),
   teamId: z.string().uuid("Invalid team ID").optional(),
-  assigneeIds: z.array(z.string().uuid("Invalid user ID")).optional(),
+  // Remove individual assigneeIds - backend handles team member assignment
 });
 
 // Move Task Schema

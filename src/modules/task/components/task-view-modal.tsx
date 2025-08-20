@@ -240,12 +240,35 @@ export const TaskViewModal: React.FC<TaskViewModalProps> = ({
                     </div>
                   )}
 
-                  {/* Assignees */}
+                  {/* Team Assignment */}
+                  {task.team && (
+                    <div>
+                      <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <User className="text-default-400" size={16} />
+                        Assigned Team
+                      </h3>
+                      <div className="flex items-center gap-3 p-3 bg-default-50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <User className="text-default-400" size={16} />
+                          <div>
+                            <p className="text-sm font-medium">
+                              {task.team.name}
+                            </p>
+                            <p className="text-xs text-default-500">
+                              All team members are assigned to this task
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Team Members */}
                   {task.assignees && task.assignees.length > 0 && (
                     <div>
                       <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
                         <User className="text-default-400" size={16} />
-                        Assignees
+                        Team Members
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {task.assignees.map((assignee) => (

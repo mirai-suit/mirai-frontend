@@ -74,6 +74,7 @@ export interface Task {
   boardId: string;
   columnId: string;
   teamId?: string;
+  team?: TaskTeam; // Add team object for consistency
   assignees: TaskAssignee[];
   createdAt: string;
   updatedAt: string;
@@ -88,7 +89,7 @@ export interface TaskDetail extends Task {
   attachments?: TaskAttachment[];
 }
 
-// API Request Types
+// API Request Types - Team-based assignment
 export interface CreateTaskRequest {
   title: string;
   description?: string;
@@ -101,8 +102,8 @@ export interface CreateTaskRequest {
   isRecurring?: boolean;
   boardId: string;
   columnId: string;
-  teamId?: string;
-  assigneeIds?: string[];
+  teamId: string; // Required - no more individual assignment
+  // Remove assigneeIds - backend assigns all team members automatically
 }
 
 export interface UpdateTaskRequest {
@@ -116,8 +117,8 @@ export interface UpdateTaskRequest {
   order?: number;
   isRecurring?: boolean;
   columnId?: string;
-  teamId?: string;
-  assigneeIds?: string[];
+  teamId?: string; // Can reassign to different team
+  // Remove assigneeIds - backend handles team member assignment
 }
 
 export interface MoveTaskRequest {

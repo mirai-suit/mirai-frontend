@@ -16,7 +16,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
 
-import { Task, UpdateTaskRequest } from "../types";
+import { UpdateTaskRequest, Task } from "../types";
 import {
   updateTaskFormSchema,
   TASK_PRIORITIES,
@@ -25,10 +25,9 @@ import {
 } from "../validations";
 import { useUpdateTask } from "../api";
 
-import { AssigneeSelect } from "./assignee-select";
+import { TeamSelect } from "./team-select";
 
-import { useOrganizationMembers } from "@/modules/organization/api";
-import { useOrgStore } from "@/store/useOrgStore";
+import { useTeamsByBoardAccess } from "@/modules/organization/api";
 
 interface EditTaskModalProps {
   task: Task;
@@ -41,17 +40,13 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { currentOrg } = useOrgStore();
   const updateTaskMutation = useUpdateTask();
 
-  // Get organization members for assignment
-  const { data: membersResponse } = useOrganizationMembers(
-    currentOrg?.id || ""
-  );
-  const organizationMembers = membersResponse?.members || [];
+  // Get teams that have access to this board
+  const { data: teams } = useTeamsByBoardAccess(task.boardId);
 
   // const taskMoveData = React.useMemo(() => ({
-      
+
   //   }),
   //   [task])
   const formData = React.useMemo(
@@ -63,21 +58,21 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
       dateRange:
         task.startDate && task.dueDate
           ? {
-              start: new Date(task.startDate).toISOString().split("T")[0],
-              end: new Date(task.dueDate).toISOString().split("T")[0],
-            }
+            start: new Date(task.startDate).toISOString().split("T")[0],
+            end: new Date(task.dueDate).toISOString().split("T")[0],
+          }
           : task.startDate
             ? {
-                start: new Date(task.startDate).toISOString().split("T")[0],
-                end: undefined,
-              }
+              start: new Date(task.startDate).toISOString().split("T")[0],
+              end: undefined,
+            }
             : task.dueDate
               ? {
-                  start: undefined,
-                  end: new Date(task.dueDate).toISOString().split("T")[0],
-                }
+                start: undefined,
+                end: new Date(task.dueDate).toISOString().split("T")[0],
+              }
               : undefined,
-      assigneeIds: task.assignees?.map((assignee) => assignee.id) || [],
+      teamId: task.team?.id || task.teamId || "",
     }),
     [task]
   );
@@ -100,15 +95,15 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
         priority: data.priority as any,
         startDate: data.dateRange?.start
           ? parseDate(data.dateRange.start)
-              .toDate(getLocalTimeZone())
-              .toISOString()
+            .toDate(getLocalTimeZone())
+            .toISOString()
           : undefined,
         dueDate: data.dateRange?.end
           ? parseDate(data.dateRange.end)
-              .toDate(getLocalTimeZone())
-              .toISOString()
+            .toDate(getLocalTimeZone())
+            .toISOString()
           : undefined,
-        assigneeIds: data.assigneeIds,
+        teamId: data.teamId,
       };
 
       await updateTaskMutation.mutateAsync({
@@ -232,9 +227,9 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                     value={
                       field.value?.start && field.value?.end
                         ? {
-                            start: parseDate(field.value.start) as any,
-                            end: parseDate(field.value.end) as any,
-                          }
+                          start: parseDate(field.value.start) as any,
+                          end: parseDate(field.value.end) as any,
+                        }
                         : undefined
                     }
                     variant="flat"
@@ -252,10 +247,10 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
                 )}
               />
 
-              {/* Assignees */}
-              <AssigneeSelect
+              {/* Team Assignment */}
+              <TeamSelect
                 control={control}
-                organizationMembers={organizationMembers}
+                teams={teams || []}
               />
             </div>
           </ModalBody>

@@ -12,6 +12,16 @@ import { addToast } from "@heroui/react";
 
 import { organizationMembersService, invitationService } from "../services";
 
+// Export team-related hooks
+export {
+  useTeams,
+  useCreateTeam,
+  useUpdateTeam,
+  useDeleteTeam,
+  useTeamsForTaskAssignment,
+  useTeamsByBoardAccess,
+} from "./teams";
+
 // Query Keys
 export const organizationKeys = {
   all: ["organization"] as const,

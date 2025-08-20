@@ -27,13 +27,12 @@ import {
 import { type CreateTaskRequest } from "../types";
 import { useCreateTask, useCreateTaskWithFiles } from "../api";
 
-import { AssigneeSelect } from "./assignee-select";
+import { TeamSelect } from "./team-select";
 import { VoiceRecorder } from "./voice-recorder";
 import { FileUpload } from "./file-upload";
 
 import { WithPermission } from "@/components/role-based-access";
-import { useOrganizationMembers } from "@/modules/organization/api";
-import { useOrgStore } from "@/store/useOrgStore";
+import { useTeamsByBoardAccess } from "@/modules/organization/api";
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -50,19 +49,14 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   columnId,
   teamId,
 }) => {
-  const { currentOrg } = useOrgStore();
   const createTaskMutation = useCreateTask();
   const createTaskWithFilesMutation = useCreateTaskWithFiles();
 
   // File attachment state
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
-  // Get organization members for assignment
-  const { data: membersResponse } = useOrganizationMembers(
-    currentOrg?.id || ""
-  );
-
-  const organizationMembers = membersResponse?.members || [];
+  // Get teams that have access to this board for task assignment
+  const { data: availableTeams } = useTeamsByBoardAccess(boardId);
 
   const {
     control,
@@ -81,8 +75,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       isRecurring: false,
       boardId,
       columnId,
-      teamId,
-      assigneeIds: [],
+      teamId: teamId || "",
     },
     mode: "onChange",
   });
@@ -100,13 +93,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         customStatus: data.customStatus,
         startDate: data.dateRange?.start
           ? parseDate(data.dateRange.start)
-              .toDate(getLocalTimeZone())
-              .toISOString()
+            .toDate(getLocalTimeZone())
+            .toISOString()
           : undefined,
         dueDate: data.dateRange?.end
           ? parseDate(data.dateRange.end)
-              .toDate(getLocalTimeZone())
-              .toISOString()
+            .toDate(getLocalTimeZone())
+            .toISOString()
           : undefined,
         priority: data.priority,
         order: data.order || 0,
@@ -114,7 +107,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
         boardId: data.boardId,
         columnId: data.columnId,
         teamId: data.teamId,
-        assigneeIds: data.assigneeIds || [],
+        // Remove assigneeIds - backend handles team member assignment
       };
 
       // Use different mutation based on whether files are attached
@@ -273,10 +266,12 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                   )}
                 />
 
-                {/* Assignees Selection */}
-                <AssigneeSelect
+                {/* Team Assignment */}
+                <TeamSelect
                   control={control}
-                  organizationMembers={organizationMembers}
+                  teams={availableTeams || []}
+                  label="Assign to Team"
+                  placeholder="Select a team for this task"
                 />
 
                 {/* Recurring Task */}
@@ -338,9 +333,9 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
                     value={
                       field.value?.start && field.value?.end
                         ? {
-                            start: parseDate(field.value.start) as any,
-                            end: parseDate(field.value.end) as any,
-                          }
+                          start: parseDate(field.value.start) as any,
+                          end: parseDate(field.value.end) as any,
+                        }
                         : undefined
                     }
                     variant="flat"
